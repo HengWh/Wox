@@ -161,7 +161,8 @@ namespace Wox.Plugin.Program
             var windows10 = new Version(10, 0);
             var support = Environment.OSVersion.Version.Major >= windows10.Major;
 
-            var applications = support ? UWP.All() : new UWP.Application[] { };
+            //var applications = support ? UWP.All() : new UWP.Application[] { };
+            var applications = new UWP.Application[] { };
             _uwps = applications;
         }
 

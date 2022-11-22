@@ -31,9 +31,16 @@ namespace Wox.Infrastructure.Logger
             {
                 FileName = CurrentLogDirectory.Replace(@"\", "/") + "/${shortdate}.txt",
             };
+            var warnFileTarget = new FileTarget()
+            {
+                FileName = CurrentLogDirectory.Replace(@"\", "/") + "/${shortdate}-QueryFeed.log",
+                Encoding=System.Text.Encoding.UTF8,
+                Layout = "${message}"
+            };
             var consoleTarget = new NLog.Targets.ConsoleTarget();
 #if DEBUG
-            configuration.AddRule(LogLevel.Debug, LogLevel.Fatal, fileTarget);
+            configuration.AddRule(LogLevel.Debug, LogLevel.Info, fileTarget);
+            configuration.AddRuleForOneLevel(LogLevel.Warn, warnFileTarget);
 #else
             configuration.AddRule(LogLevel.Info, LogLevel.Fatal, fileTarget);
 #endif
@@ -63,6 +70,12 @@ namespace Wox.Infrastructure.Logger
         {
             Debug.WriteLine($"INFO|{logger.Name}|{methodName}|{message}");
             logger.Info($"{methodName}|{message}");
+        }
+
+        public static void WoxWarn(this NLog.Logger logger, string message, [CallerMemberName] string methodName = "")
+        {
+            Debug.WriteLine($"Warn|{logger.Name}|{methodName}|{message}");
+            logger.Warn($"{message}");
         }
 
         public static void WoxError(this NLog.Logger logger, string message, [CallerMemberName] string methodName = "")

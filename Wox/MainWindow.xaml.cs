@@ -47,6 +47,7 @@ namespace Wox
 
         private void OnClosing(object sender, CancelEventArgs e)
         {
+            QueryFeedLog.Instance.WriteLog();
             _notifyIcon.Visible = false;
             _viewModel.Save();
         }
@@ -83,6 +84,10 @@ namespace Wox
                             _viewModel.LastQuerySelected = true;
                         }
                     }
+                    else
+                    {
+                        QueryFeedLog.Instance.WriteLog();
+                    }
                     return;
                 }
 
@@ -90,11 +95,11 @@ namespace Wox
                 {
                     if (_viewModel.ProgressBarVisibility == Visibility.Visible)
                     {
-                        ProgressBar.BeginStoryboard(_progressBarStoryboard);
+                        Dispatcher.Invoke(() => ProgressBar.BeginStoryboard(_progressBarStoryboard));
                     }
                     else
                     {
-                        _progressBarStoryboard.Stop(ProgressBar);
+                        Dispatcher.Invoke(() => _progressBarStoryboard.Stop(ProgressBar));
                     }
                 }
             };
@@ -128,7 +133,11 @@ namespace Wox
             var items = menu.Items;
 
             var open = items.Add(InternationalizationManager.Instance.GetTranslation("iconTrayOpen"));
-            open.Click += (o, e) => Visibility = Visibility.Visible;
+            open.Click += (o, e) =>
+            {
+                _viewModel.QueryFeedStartTime = DateTime.UtcNow;
+                Visibility = Visibility.Visible;
+            };
             var setting = items.Add(InternationalizationManager.Instance.GetTranslation("iconTraySettings"));
             setting.Click += (o, e) => App.API.OpenSettingDialog();
             var exit = items.Add(InternationalizationManager.Instance.GetTranslation("iconTrayExit"));
@@ -238,6 +247,7 @@ namespace Wox
             {
                 Hide();
             }
+            QueryFeedLog.Instance.WriteLog();
         }
 
         private void UpdatePosition()

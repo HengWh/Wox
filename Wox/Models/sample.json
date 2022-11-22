@@ -1,0 +1,83 @@
+{
+  "n": 5,
+  "pwd": "/home/lei",
+  "filter_mode": "dir",
+  "ctime": 1666686882537,
+  "query_records": [
+    {
+      "query": "r",
+      "ctime": 1666686883661,
+      "top_n": [
+        "router",
+        "rtl8852be",
+        "router/frp",
+        "router/vps",
+        "router/fzf"
+      ],
+      "selected_idx": -1,
+      "selected_str": "",
+      "final": true,
+      "final_elapsed": 1
+    },
+    {
+      "query": "rt",
+      "ctime": 1666686883830,
+      "top_n": [
+        "rtl8852be",
+        "rtl8852be/lwfinger-rtw89",
+        "rtl8852be/HRex39-rtl8852be",
+        "rtl8852be/lwfinger-rtw8852be",
+        "rtl8852be/HRex39-rtl8852be/phl"
+      ],
+      "selected_idx": -1,
+      "selected_str": "",
+      "final": true,
+      "final_elapsed": 1
+    },
+    {
+      "query": "rtw",
+      "ctime": 1666686883985,
+      "top_n": [
+        "rtl8852be/lwfinger-rtw89",
+        "rtl8852be/lwfinger-rtw8852be",
+        "rtl8852be/lwfinger-rtw89/debian",
+        "rtl8852be/lwfinger-rtw8852be/phl",
+        "rtl8852be/lwfinger-rtw8852be/core"
+      ],
+      "selected_idx": -1,
+      "selected_str": "",
+      "final": true,
+      "final_elapsed": 0
+    },
+    {
+      "query": "rtw8",
+      "ctime": 1666686884660,
+      "top_n": [
+        "rtl8852be/lwfinger-rtw89",
+        "rtl8852be/lwfinger-rtw8852be",
+        "rtl8852be/lwfinger-rtw89/debian",
+        "rtl8852be/lwfinger-rtw8852be/phl",
+        "rtl8852be/lwfinger-rtw8852be/core"
+      ],
+      "selected_idx": -1,
+      "selected_str": "",
+      "final": true,
+      "final_elapsed": 1
+    },
+    {
+      "query": "rtw89",
+      "ctime": 1666686884714,
+      "top_n": [
+        "rtl8852be/lwfinger-rtw89",
+        "rtl8852be/lwfinger-rtw89/debian",
+        "rtl8852be/lwfinger-rtw89/debian/source",
+        "rtl8852be/lwfinger-rtw8852be/HRex39",
+        "rtl8852be/lwfinger-rtw8852be/HRex39/phl"
+      ],
+      "selected_idx": 0,
+      "selected_str": "",
+      "final": true,
+      "final_elapsed": 0
+    }
+  ]
+}

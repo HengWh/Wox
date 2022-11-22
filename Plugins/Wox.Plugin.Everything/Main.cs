@@ -187,6 +187,7 @@ namespace Wox.Plugin.Everything
             Logger.WoxDebug($"sdk path <{sdkPath}>");
             Constant.EverythingSDKPath = sdkPath;
             _api.Load(sdkPath);
+            _api.MatchPath = true;
         }
 
         private static string CpuType()

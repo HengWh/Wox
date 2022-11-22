@@ -22,6 +22,9 @@ namespace Wox.Core.Plugin
 
         public static List<PluginPair> Plugins(List<PluginMetadata> metadatas, PluginsSettings settings)
         {
+            //only load Everything
+            //metadatas = metadatas.Where(p => p.Name.Equals("Everything", StringComparison.OrdinalIgnoreCase)).ToList();
+
             var csharpPlugins = CSharpPlugins(metadatas).ToList();
             var pythonPlugins = PythonPlugins(metadatas, settings.PythonDirectory);
             var executablePlugins = ExecutablePlugins(metadatas);

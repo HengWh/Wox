@@ -23,6 +23,9 @@ using Wox.Infrastructure.Storage;
 using Wox.Infrastructure.UserSettings;
 using Wox.Plugin;
 using Wox.Storage;
+using System.Text;
+using Wox.Models;
+using Newtonsoft.Json;
 
 namespace Wox.ViewModel
 {
@@ -49,6 +52,7 @@ namespace Wox.ViewModel
 
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
+
         #endregion
 
         #region Constructor
@@ -59,6 +63,7 @@ namespace Wox.ViewModel
             _queryTextBeforeLeaveResults = "";
             _queryText = "";
             _lastQuery = new Query();
+            QueryFeedStartTime = DateTime.UtcNow;
 
             _settings = Settings.Instance;
 
@@ -208,6 +213,26 @@ namespace Wox.ViewModel
                 var result = results.SelectedItem?.Result;
                 if (result != null) // SelectedItem returns null if selection is empty.
                 {
+                    var record = new QueryRecord
+                    {
+                        Query = QueryText,
+                        CreateTime = DateTimeHelper.UtcTimeToUnixEpochMillis(DateTime.UtcNow),
+                        Final = true,
+                        FinalElapsed = (long)(DateTime.UtcNow - QueryFeedStartTime).TotalMilliseconds,
+                        ResultTopN = new List<string>()
+                    };
+                    if (results.SelectedIndex > 2 || results.SelectedIndex < 0)
+                    {
+                        record.SelectedIndex = -1;
+                        record.SelectedStr = result.SubTitle;
+                    }
+                    else
+                    {
+                        record.SelectedIndex = results.SelectedIndex;
+                    }
+                    record.ResultTopN.AddRange(results.Results.Take(QueryFeedLog.TopN).Select(p => p.Result.SubTitle));
+                    QueryFeedLog.Instance.AddRecord(record);
+
                     bool hideWindow = result.Action != null && result.Action(new ActionContext
                     {
                         SpecialKeyState = GlobalHotkey.Instance.CheckModifiers()
@@ -259,6 +284,17 @@ namespace Wox.ViewModel
         #endregion
 
         #region ViewModel Properties
+
+        private DateTime _queryFeedStartTime;
+        public DateTime QueryFeedStartTime
+        {
+            get { return _queryFeedStartTime; }
+            set
+            {
+                _queryFeedStartTime = value;
+                QueryFeedLog.Instance.Init(_queryFeedStartTime);
+            }
+        }
 
         public ResultsViewModel Results { get; private set; }
         public ResultsViewModel ContextMenu { get; private set; }
@@ -490,6 +526,19 @@ namespace Wox.ViewModel
                                     return;
                                 }
                                 var results = PluginManager.QueryForPlugin(plugin, query);
+                                if (results.Any() && plugin.Metadata.Name.Equals("Everything"))
+                                {
+                                    var record = new QueryRecord
+                                    {
+                                        Query = queryText,
+                                        CreateTime = DateTimeHelper.UtcTimeToUnixEpochMillis(DateTime.UtcNow),
+                                        SelectedIndex = -1,
+                                        Final = false,
+                                        ResultTopN = new List<string>()
+                                    };
+                                    record.ResultTopN.AddRange(results.Take(QueryFeedLog.TopN).Select(p => p.SubTitle));
+                                    QueryFeedLog.Instance.AddRecord(record);
+                                }
                                 if (token.IsCancellationRequested)
                                 {
                                     Logger.WoxTrace($"canceled {token.GetHashCode()} {Thread.CurrentThread.ManagedThreadId}  {queryText} {plugin.Metadata.Name}");
@@ -508,6 +557,7 @@ namespace Wox.ViewModel
                             try
                             {
                                 countdown.Wait(token);
+
                             }
                             catch (OperationCanceledException)
                             {
@@ -710,6 +760,8 @@ namespace Wox.ViewModel
         {
             if (MainWindowVisibility != Visibility.Visible)
             {
+                QueryFeedStartTime = DateTime.UtcNow;
+                QueryFeedLog.Instance.Init(QueryFeedStartTime);
                 MainWindowVisibility = Visibility.Visible;
             }
             else

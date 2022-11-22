@@ -10,12 +10,12 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("Release build, https://github.com/Wox-launcher/Wox")]
 #endif
 
-[assembly: AssemblyCompany("Wox")]
-[assembly: AssemblyProduct("Wox")]
+[assembly: AssemblyCompany("WoxQuery")]
+[assembly: AssemblyProduct("WoxQuery")]
 [assembly: AssemblyCopyright("The MIT License (MIT)")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
-[assembly: AssemblyVersion("1.5.0")]
-[assembly: AssemblyFileVersion("1.5.0")]
-[assembly: AssemblyInformationalVersion("1.5.0")]
+[assembly: AssemblyVersion("2.0.0")]
+[assembly: AssemblyFileVersion("2.0.0")]
+[assembly: AssemblyInformationalVersion("2.0.0")]
