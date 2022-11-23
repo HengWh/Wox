@@ -176,7 +176,7 @@ namespace Wox.ViewModel
                 newResults.AddRange(vm);
 
                 if (token.IsCancellationRequested) { return Results.ToList(); }
-                List<ResultViewModel> sorted = newResults.OrderByDescending(r => r.Result.Score).Take(MaxResults * 4).ToList();
+                List<ResultViewModel> sorted = newResults.OrderByDescending(r => r.Result.Score).ToList();
 
                 return sorted;
             }

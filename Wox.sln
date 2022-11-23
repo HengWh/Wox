@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29806.167
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32328.378
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wox", "Wox\Wox.csproj", "{DB90F671-D861-46BB-93A3-F1304F5BA1C5}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -78,6 +78,8 @@ Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "Wox.Installer", "Wox.Instal
 	ProjectSection(ProjectDependencies) = postProject
 		{DB90F671-D861-46BB-93A3-F1304F5BA1C5} = {DB90F671-D861-46BB-93A3-F1304F5BA1C5}
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wox.Plugin.Indexer", "Plugins\Wox.Plugin.Indexer\Wox.Plugin.Indexer.csproj", "{F8B870EB-D5F5-45BA-9CF7-A5C459818820}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -164,6 +166,10 @@ Global
 		{9B130CC5-14FB-41FF-B310-0A95B6894C37}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F96EDD7F-00C8-44B8-8AC7-1D500BBBAEEA}.Debug|Any CPU.ActiveCfg = Debug|x64
 		{F96EDD7F-00C8-44B8-8AC7-1D500BBBAEEA}.Release|Any CPU.ActiveCfg = Release|x64
+		{F8B870EB-D5F5-45BA-9CF7-A5C459818820}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8B870EB-D5F5-45BA-9CF7-A5C459818820}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8B870EB-D5F5-45BA-9CF7-A5C459818820}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8B870EB-D5F5-45BA-9CF7-A5C459818820}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -183,6 +189,7 @@ Global
 		{C21BFF9C-2C99-4B5F-B7C9-A5E6DDDB37B0} = {3A73F5A7-0335-40D8-BF7C-F20BE5D0BA87}
 		{59BD9891-3837-438A-958D-ADC7F91F6F7E} = {3A73F5A7-0335-40D8-BF7C-F20BE5D0BA87}
 		{9B130CC5-14FB-41FF-B310-0A95B6894C37} = {3A73F5A7-0335-40D8-BF7C-F20BE5D0BA87}
+		{F8B870EB-D5F5-45BA-9CF7-A5C459818820} = {3A73F5A7-0335-40D8-BF7C-F20BE5D0BA87}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F26ACB50-3F6C-4907-B0C9-1ADACC1D0DED}

@@ -230,7 +230,16 @@ namespace Wox.ViewModel
                     {
                         record.SelectedIndex = results.SelectedIndex;
                     }
-                    record.ResultTopN.AddRange(results.Results.Take(QueryFeedLog.TopN).Select(p => p.Result.SubTitle));
+                    record.ResultTopN.AddRange(results.Results.Take(QueryFeedLog.TopN).Select(p =>
+                    {
+                        return p.Result.PluginID switch
+                        {
+                            "D2D2C23B084D411DB66FE0C79D6C2A6E" => p.Result.SubTitle, //Everything
+                            "791FC278BA414111B8D1886DFE447410" => p.Result.SubTitle, //Program
+                            "2140FC9819AD43A3A616E2735815C27C" => p.Result.SubTitle.Replace("[WindowsSearch]", "")?.TrimStart(), //WindowsSearch.
+                            _ => p.ToString()
+                        };
+                    }));
                     QueryFeedLog.Instance.AddRecord(record);
 
                     bool hideWindow = result.Action != null && result.Action(new ActionContext
@@ -526,7 +535,7 @@ namespace Wox.ViewModel
                                     return;
                                 }
                                 var results = PluginManager.QueryForPlugin(plugin, query);
-                                if (results.Any() && plugin.Metadata.Name.Equals("Everything"))
+                                if (results.Any())
                                 {
                                     var record = new QueryRecord
                                     {
@@ -536,8 +545,18 @@ namespace Wox.ViewModel
                                         Final = false,
                                         ResultTopN = new List<string>()
                                     };
-                                    record.ResultTopN.AddRange(results.Take(QueryFeedLog.TopN).Select(p => p.SubTitle));
+                                    record.ResultTopN.AddRange(results.Take(QueryFeedLog.TopN).Select(p =>
+                                    {
+                                        return plugin.Metadata.ID switch
+                                        {
+                                            "D2D2C23B084D411DB66FE0C79D6C2A6E" => p.SubTitle, //Everything
+                                            "791FC278BA414111B8D1886DFE447410" => p.SubTitle, //Program
+                                            "2140FC9819AD43A3A616E2735815C27C" => p.SubTitle.Replace("[WindowsSearch]", "")?.TrimStart(), //WindowsSearch.
+                                            _ => p.ToString()
+                                        };
+                                    }));
                                     QueryFeedLog.Instance.AddRecord(record);
+                                    Logger.WoxDebug(JsonConvert.SerializeObject(record));
                                 }
                                 if (token.IsCancellationRequested)
                                 {
