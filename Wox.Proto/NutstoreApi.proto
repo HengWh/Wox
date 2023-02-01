@@ -1,0 +1,119 @@
+﻿syntax = "proto3";
+
+package api;
+
+message SearchRequest {
+  // Query should be split by white space
+  //  and then each part is a query term
+  // For example, the query " Why so \t so serious  " contain three query terms (sort-dedup):
+  //    "Why"
+  //    "so"
+  //    "serious"
+  // And the query term case sensitivity can be determined by is there any character is upper case
+  //  so we get the final result:
+  //    ("Why", true)
+  //    ("so", false)
+  //    ("serious", false)
+  message QueryTerm {
+    string term = 1;
+    bool case_sensitive = 2;
+  }
+
+  repeated QueryTerm terms = 1;
+  // Used to strip the given prefix for data in LMDB before matching
+  //  if a value in LMDB is not have the given prefix, it's considered as not a match
+  // This prefix can be used to narrow down to match a subset of the dataset in LMDB
+  //  if you want to match all data in LMDB, pass an empty string for this argument
+  //  in such case, all matched items will have the full data returned
+  // NOTE: if it is not empty, it should ends with os-specific path separator
+  //  e.g. /foo/bar/, D:\foo\bar\
+  string prefix_mask = 2;
+  // Whether to include the matched positions in search response
+  //  i.e. you can use the positions to do things like highlighting
+  bool with_pos = 3;
+  // 1<<0: FLAG_NEED_FILE
+  // 1<<1: FLAG_NEED_DIR
+  // Zero flag or unknown flags are not allowed
+  uint32 flags = 4;
+}
+
+enum Type {
+  WORKING_SET = 0;
+  RESIDENT_SET = 1;
+  LAST_UNUSED = 2;
+}
+
+message SearchResponse {
+  message SearchResult {
+    // Where the data set the matched result belongs to
+    Type the_type = 1;
+    uint64 key = 2;
+    bytes val = 3;
+    int32 score = 4;
+    // uint32 for position index is sufficient
+    repeated uint32 pos = 5;
+  }
+  // The search results are not sorted
+  repeated SearchResult results = 1;
+}
+
+message UpdateRequest {
+  message UpdateArgs {
+    Type the_type = 1;
+    uint64 key = 2;
+    bytes val = 3;
+    bool deleted = 4; // If deleted=true, val should be empty. (i.e. delete by key)
+  }
+  repeated UpdateArgs args = 1;
+}
+
+message UpdateResponse {
+  // Currently empty
+}
+
+// Query LMDB stat info (mainly used for debugging)
+message StatRequest {
+  // Currently empty
+}
+
+message StatResponse {
+  // http://www.lmdb.tech/doc/group__mdb.html#structMDB__envinfo
+  message EnvInfo {
+    uint64 used_map_size = 1;
+    uint64 map_size = 2; // mdb_env_set_mapsize()
+    uint64 last_pgno = 3;
+    uint64 last_txnid = 4;
+    uint32 max_readers = 5;
+    uint32 num_readers = 6;
+  }
+  // http://www.lmdb.tech/doc/group__mdb.html#structMDB__stat
+  message Stat {
+    uint32 db_name_index = 1;
+    uint32 page_size = 2;
+    uint32 depth = 3;
+    uint64 branch_pages = 4;
+    uint64 leaf_pages = 5;
+    uint64 overflow_pages = 6;
+    uint64 entries = 7;
+  }
+  EnvInfo env_info = 1;
+  repeated Stat stats = 2;
+}
+
+message FeedbackRequest {
+  // When did the selection happen (time in milliseconds)
+  uint64 time_ms = 1;
+  bool is_dir = 2;
+  string full_path = 3;
+}
+
+message FeedbackResponse {
+  // Currently empty
+}
+
+service ApiService {
+  rpc Search(SearchRequest) returns (stream SearchResponse); // Streaming search API
+  rpc Update(UpdateRequest) returns (UpdateResponse);
+  rpc Stat(StatRequest) returns (StatResponse);
+  rpc Feedback(FeedbackRequest) returns (FeedbackResponse);
+}

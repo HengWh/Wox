@@ -1,0 +1,12 @@
+{
+  "ID": "7031BC4171534C30834852C1C63ED3D4",
+  "ActionKeyword": "*",
+  "Name": "Nutstore FZF",
+  "Description": "Nutstore fuzzy finder",
+  "Author": "Nutstore",
+  "Version": "1.0.0",
+  "Language": "csharp",
+  "Website": "https://www.jianguoyun.com",
+  "ExecuteFileName": "Wox.Plugin.NutstoreFuzzyFinder.dll",
+  "IcoPath": "Images\\nutstore.png"
+}

@@ -81,6 +81,12 @@ Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "Wox.Installer", "Wox.Instal
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wox.Plugin.Indexer", "Plugins\Wox.Plugin.Indexer\Wox.Plugin.Indexer.csproj", "{F8B870EB-D5F5-45BA-9CF7-A5C459818820}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wox.Proto", "Wox.Proto\Wox.Proto.csproj", "{27D6E181-DAA6-4E0C-AD10-683ED36C8C74}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wox.Plugin.NutstoreFuzzyFinder", "Plugins\Wox.Plugin.NutstoreFzf\Wox.Plugin.NutstoreFuzzyFinder.csproj", "{A16C69EF-532D-4079-81B3-06311EBB924B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wox.UsnParser", "Wox.UsnParser\Wox.UsnParser.csproj", "{E626BB8B-8FFB-41E5-B14A-528714EA3456}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -170,6 +176,18 @@ Global
 		{F8B870EB-D5F5-45BA-9CF7-A5C459818820}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F8B870EB-D5F5-45BA-9CF7-A5C459818820}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F8B870EB-D5F5-45BA-9CF7-A5C459818820}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27D6E181-DAA6-4E0C-AD10-683ED36C8C74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27D6E181-DAA6-4E0C-AD10-683ED36C8C74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27D6E181-DAA6-4E0C-AD10-683ED36C8C74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27D6E181-DAA6-4E0C-AD10-683ED36C8C74}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A16C69EF-532D-4079-81B3-06311EBB924B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A16C69EF-532D-4079-81B3-06311EBB924B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A16C69EF-532D-4079-81B3-06311EBB924B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A16C69EF-532D-4079-81B3-06311EBB924B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E626BB8B-8FFB-41E5-B14A-528714EA3456}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E626BB8B-8FFB-41E5-B14A-528714EA3456}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E626BB8B-8FFB-41E5-B14A-528714EA3456}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E626BB8B-8FFB-41E5-B14A-528714EA3456}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -190,6 +208,7 @@ Global
 		{59BD9891-3837-438A-958D-ADC7F91F6F7E} = {3A73F5A7-0335-40D8-BF7C-F20BE5D0BA87}
 		{9B130CC5-14FB-41FF-B310-0A95B6894C37} = {3A73F5A7-0335-40D8-BF7C-F20BE5D0BA87}
 		{F8B870EB-D5F5-45BA-9CF7-A5C459818820} = {3A73F5A7-0335-40D8-BF7C-F20BE5D0BA87}
+		{A16C69EF-532D-4079-81B3-06311EBB924B} = {3A73F5A7-0335-40D8-BF7C-F20BE5D0BA87}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F26ACB50-3F6C-4907-B0C9-1ADACC1D0DED}

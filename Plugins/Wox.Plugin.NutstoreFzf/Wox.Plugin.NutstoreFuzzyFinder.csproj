@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net462</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<LangVersion>Latest</LangVersion>
+		<UseWPF>true</UseWPF>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<OutputPath>..\..\Output\$(Configuration)\Plugins\Wox.Plugin.NutstoreFuzzyFinder\</OutputPath>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Content Include="Images\**">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Languages\**">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<SubType>Designer</SubType>
+			<Generator>XamlIntelliSenseFileGenerator</Generator>
+		</Content>
+		<None Update="FuzzyFinderSDK\**">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Plugin.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Google.Protobuf" Version="3.21.12" />
+		<PackageReference Include="Grpc" Version="2.46.6" />
+		<PackageReference Include="Grpc.Core" Version="2.46.6" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\Wox.Core\Wox.Core.csproj" />
+		<ProjectReference Include="..\..\Wox.Infrastructure\Wox.Infrastructure.csproj" />
+		<ProjectReference Include="..\..\Wox.Plugin\Wox.Plugin.csproj" />
+		<ProjectReference Include="..\..\Wox.Proto\Wox.Proto.csproj" />
+		<ProjectReference Include="..\..\Wox.UsnParser\Wox.UsnParser.csproj" />
+		<!--<ProjectReference Include="..\..\Wox.Proto\Wox.Proto.csproj" />-->
+	</ItemGroup>
+
+</Project>
