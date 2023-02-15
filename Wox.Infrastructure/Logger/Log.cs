@@ -31,16 +31,9 @@ namespace Wox.Infrastructure.Logger
             {
                 FileName = CurrentLogDirectory.Replace(@"\", "/") + "/${shortdate}.txt",
             };
-            var warnFileTarget = new FileTarget()
-            {
-                FileName = CurrentLogDirectory.Replace(@"\", "/") + "/${shortdate}-QueryFeed.log",
-                Encoding=System.Text.Encoding.UTF8,
-                Layout = "${message}"
-            };
             var consoleTarget = new NLog.Targets.ConsoleTarget();
 #if DEBUG
             configuration.AddRule(LogLevel.Debug, LogLevel.Info, fileTarget);
-            configuration.AddRuleForOneLevel(LogLevel.Warn, warnFileTarget);
 #else
             configuration.AddRule(LogLevel.Info, LogLevel.Fatal, fileTarget);
 #endif

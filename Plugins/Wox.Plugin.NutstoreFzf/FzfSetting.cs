@@ -1,23 +1,50 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Newtonsoft.Json;
 
 namespace Wox.Plugin.NutstoreFuzzyFinder
 {
-    internal class FzfSetting
+    public class FzfSetting
     {
         public int MaxSearchCount { get; set; } = 60;
-        public int BaseScore { get; set; } = 100;
-        public List<DeviceUsnState> UsnStates { get; set; }
 
+        public int BaseScore { get; set; } = 100;
+
+        protected List<DeviceUsnState> UsnStates { get; set; } = new List<DeviceUsnState>();
+
+        public void AddOrUpdateUsnState(DeviceUsnState state)
+        {
+            if (TryGetUsnState(state.Volume, out var oldState))
+            {
+                oldState.Update(state);
+            }
+            else
+            {
+                UsnStates.Add(state);
+            }
+        }
+
+        public bool TryGetUsnState(string volume, out DeviceUsnState oldState)
+        {
+            oldState = UsnStates.FirstOrDefault(p => p.Volume.Equals(volume, StringComparison.OrdinalIgnoreCase));
+            return oldState != null;
+        }
+
+        public IReadOnlyCollection<DeviceUsnState> GetUsnStates()
+        {
+            return UsnStates.AsReadOnly();
+        }
     }
 
-    internal class DeviceUsnState
+    public class DeviceUsnState
     {
         public string Volume { get; set; }
-        public string UsnJournalId { get; set; }
-        public ulong USN { get;set; } 
+        public ulong UsnJournalId { get; set; }
+        public ulong USN { get; set; }
+
+        public void Update(DeviceUsnState state)
+        {
+            Volume = state.Volume;
+            UsnJournalId = state.UsnJournalId;
+            USN = state.USN;
+        }
     }
 }

@@ -23,4 +23,17 @@ namespace Wox.UsnParser.Native
         public uint FileIndexHigh;
         public uint FileIndexLow;
     }
+
+    public struct FILETIME
+    {
+        //
+        // Summary:
+        //     Specifies the high 32 bits of the FILETIME.
+        public int dwHighDateTime;
+
+        //
+        // Summary:
+        //     Specifies the low 32 bits of the FILETIME.
+        public int dwLowDateTime;
+    }
 }

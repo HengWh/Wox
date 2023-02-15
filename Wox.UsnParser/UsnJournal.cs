@@ -137,7 +137,7 @@ namespace Wox.UsnParser
                     {
                         var options = new GlobOptions { Evaluation = { CaseInsensitive = true } };
                         var glob = Glob.Parse(keyword, options);
-                        if (glob.IsMatch(usnEntry.Name.AsSpan()))
+                        if (glob.IsMatch(usnEntry.Name))
                         {
                             yield return usnEntry;
                         }
@@ -333,7 +333,7 @@ namespace Wox.UsnParser
                             {
                                 var options = new GlobOptions { Evaluation = { CaseInsensitive = true } };
                                 var glob = Glob.Parse(keyword, options);
-                                if (glob.IsMatch(usnEntry.Name.AsSpan()))
+                                if (glob.IsMatch(usnEntry.Name))
                                 {
                                     usnEntries.Add(usnEntry);
                                 }
@@ -443,7 +443,7 @@ namespace Wox.UsnParser
                             {
                                 var options = new GlobOptions { Evaluation = { CaseInsensitive = true } };
                                 var glob = Glob.Parse(keyword, options);
-                                if (glob.IsMatch(usnEntry.Name.AsSpan()))
+                                if (glob.IsMatch(usnEntry.Name))
                                 {
                                     yield return usnEntry;
                                 }

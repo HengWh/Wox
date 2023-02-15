@@ -4,11 +4,36 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Wox.Plugin.NutstoreFuzzyFinder"
+             Loaded="UserControl_Loaded"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Border BorderThickness="1" BorderBrush="#dcdcdc" Margin="10" Padding="10">
-            <TextBlock Text="To Do Something" Foreground="#FF2222"/>
+            <StackPanel Orientation="Vertical" VerticalAlignment="Stretch" Margin="10">
+                <StackPanel Orientation="Horizontal" Margin="0 10">
+                    <TextBlock Text="Max search count: " Width="120"/>
+                    <TextBox x:Name="txtCount" Text="0" Width="60"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0 10">
+                    <TextBlock Text="Base score: " Width="120"/>
+                    <TextBox x:Name="txtScore" Text="0" Width="60"/>
+                </StackPanel>
+                <StackPanel Orientation="Vertical" Margin="0 10">
+                    <TextBlock Text="USN states: " Width="120"/>
+                    <DataGrid x:Name="datagridUSN" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" MinHeight="100" MaxHeight="200"/>
+                </StackPanel>
+                <Rectangle Height="1" Fill="Gray" Margin="0 10"/>
+                <Grid Margin="0 10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <Button Content="Query LMDB stat info" Foreground="#FF2222" VerticalAlignment="Top" HorizontalAlignment="Left" Padding="15 7"
+                    Click="Button_Click"/>
+                    <TextBox Grid.Row="1" Name="txtDbInfo" BorderThickness="1" Background="Transparent" Margin="0 10"
+                             TextWrapping="Wrap" ScrollViewer.CanContentScroll="True"/>
+                </Grid>
+            </StackPanel>
         </Border>
     </Grid>
 </UserControl>
