@@ -36,6 +36,7 @@ namespace Wox.ViewModel
         const string EverythingId = "D2D2C23B084D411DB66FE0C79D6C2A6E";
         const string WindowsIndexerId = "2140FC9819AD43A3A616E2735815C27C";
         const string ProgramId = "791FC278BA414111B8D1886DFE447410";
+        const string NutstoreFuzzyId = "7031BC4171534C30834852C1C63ED3D4";
 
         private Query _lastQuery;
         private string _queryTextBeforeLeaveResults;
@@ -219,34 +220,8 @@ namespace Wox.ViewModel
                 var result = results.SelectedItem?.Result;
                 if (result != null) // SelectedItem returns null if selection is empty.
                 {
-                    var record = new QueryRecord
-                    {
-                        Query = QueryText,
-                        CreateTime = DateTimeHelper.UtcTimeToUnixEpochMillis(DateTime.UtcNow),
-                        Final = true,
-                        FinalElapsed = (long)(DateTime.UtcNow - QueryFeedStartTime).TotalMilliseconds,
-                        ResultTopN = new List<string>()
-                    };
-                    if (results.SelectedIndex > 2 || results.SelectedIndex < 0)
-                    {
-                        record.SelectedIndex = -1;
-                        record.SelectedStr = result.SubTitle;
-                    }
-                    else
-                    {
-                        record.SelectedIndex = results.SelectedIndex;
-                    }
-                    record.ResultTopN.AddRange(results.Results.Take(QueryFeedLog.TopN).Select(p =>
-                    {
-                        return p.Result.PluginID switch
-                        {
-                            EverythingId => p.Result.SubTitle, //Everything
-                            ProgramId => p.Result.SubTitle, //Program
-                            WindowsIndexerId => p.Result.SubTitle.Replace("[WindowsSearch]", "")?.TrimStart(), //WindowsSearch.
-                            _ => p.ToString()
-                        };
-                    }));
-                    QueryFeedLog.Instance.AddRecord(record);
+                    List<Result> TopResults= results.Results.Take(QueryFeedLog.TopN).Select(p => p.Result).ToList();
+                    LogQueryFeedBack(QueryText, TopResults, results.SelectedIndex, result.SubTitle);
 
                     bool hideWindow = result.Action != null && result.Action(new ActionContext
                     {
@@ -545,28 +520,10 @@ namespace Wox.ViewModel
                                     return;
                                 }
                                 var results = PluginManager.QueryForPlugin(plugin, query);
+
                                 if (results.Any())
                                 {
-                                    var record = new QueryRecord
-                                    {
-                                        Query = queryText,
-                                        CreateTime = DateTimeHelper.UtcTimeToUnixEpochMillis(DateTime.UtcNow),
-                                        SelectedIndex = -1,
-                                        Final = false,
-                                        ResultTopN = new List<string>()
-                                    };
-                                    record.ResultTopN.AddRange(results.Take(QueryFeedLog.TopN).Select(p =>
-                                    {
-                                        return plugin.Metadata.ID switch
-                                        {
-                                            EverythingId => p.SubTitle, //Everything
-                                            ProgramId => p.SubTitle, //Program
-                                            WindowsIndexerId => p.SubTitle.Replace("[WindowsSearch]", "")?.TrimStart(), //WindowsSearch.
-                                            _ => p.ToString()
-                                        };
-                                    }));
-                                    QueryFeedLog.Instance.AddRecord(record);
-                                    Logger.WoxDebug(JsonConvert.SerializeObject(record));
+                                    LogQueryFeedBack(queryText,results);
                                 }
                                 if (token.IsCancellationRequested)
                                 {
@@ -603,8 +560,6 @@ namespace Wox.ViewModel
                                 ProgressBarVisibility = Visibility.Hidden;
                             }
                         });
-
-
                     }
                 }
                 else
@@ -698,7 +653,6 @@ namespace Wox.ViewModel
             var selected = SelectedResults == ContextMenu;
             return selected;
         }
-
 
         private bool HistorySelected()
         {
@@ -803,6 +757,43 @@ namespace Wox.ViewModel
             {
                 MainWindowVisibility = Visibility.Collapsed;
             }
+        }
+
+        private void LogQueryFeedBack(string queryText, List<Result> results, int selectedIndex = -1, string selectedStr = "")
+        {
+            if (results == null || results.Count == 0)
+                return;
+            var record = new QueryRecord
+            {
+                Query = queryText,
+                CreateTime = DateTimeHelper.UtcTimeToUnixEpochMillis(DateTime.UtcNow),
+                Final = false,
+                ResultTopN = new List<string>()
+            };
+
+            if (selectedIndex > 2 || selectedIndex < 0)
+            {
+                record.SelectedIndex = -1;
+                record.SelectedStr = selectedStr;
+            }
+            else
+            {
+                record.SelectedIndex = selectedIndex;
+            }
+
+            record.ResultTopN.AddRange(results.Take(QueryFeedLog.TopN).Select(p =>
+            {
+                return p.PluginID switch
+                {
+                    EverythingId => p.SubTitle, //Everything
+                    ProgramId => p.SubTitle, //Program
+                    WindowsIndexerId => p.SubTitle.Replace("[WindowsSearch]", "")?.TrimStart(), //WindowsSearch.
+                    NutstoreFuzzyId => p.SubTitle, //Nutstore Fuzzy.
+                    _ => p.ToString()
+                };
+            }));
+            QueryFeedLog.Instance.AddRecord(record);
+            Logger.WoxDebug(JsonConvert.SerializeObject(record));
         }
 
         #endregion

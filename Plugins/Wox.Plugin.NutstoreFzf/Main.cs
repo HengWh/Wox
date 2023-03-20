@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using NLog;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -18,7 +19,7 @@ using static Api.SearchResponse.Types;
 
 namespace Wox.Plugin.NutstoreFuzzyFinder
 {
-    public class Main : IPlugin, ISettingProvider, IPluginI18n, ISavable, IContextMenu
+    public class Main : IPlugin, ISettingProvider, IPluginI18n, ISavable, IContextMenu, IResultUpdated
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
@@ -30,6 +31,10 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
         private CancellationTokenSource _cts;
         private Comparison<SearchResult> _comparsion;
         private DateTime _queryFinishedTime;
+
+        public event ResultUpdatedEventHandler ResultsUpdated;
+
+        public Action<List<Result>> UpdateAction { get; set; }
 
         public Control CreateSettingPanel()
         {
@@ -65,7 +70,7 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
             var usnChannel = new Channel("127.0.0.1:38998", ChannelCredentials.Insecure);
             _usn = new Usn.UsnClient(usnChannel);
             //TODO: grpc heath check, heart?  
-            const string recyle = @"\$Recycle.Bin";
+
             _comparsion = new Comparison<SearchResult>((a, b) =>
             {
                 if (a.DbIdx == 0 && b.DbIdx != 0)
@@ -77,13 +82,7 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
 
                 var pathA = FuzzyUtil.UnpackValue(a.Val).path;
                 var pathB = FuzzyUtil.UnpackValue(b.Val).path;
-
-                if (!pathA.StartsWith(recyle) && pathB.StartsWith(recyle))
-                    return 1;
-                else if (pathA.StartsWith(recyle) && !pathB.StartsWith(recyle))
-                    return -1;
-                else
-                    return pathB.Length - pathA.Length;
+                return pathB.Length - pathA.Length;
             });
 
             Task.Run(() =>
@@ -138,8 +137,17 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
 
         public List<Result> Query(Query query)
         {
-            _cts?.Cancel();
-            var cts = new CancellationTokenSource();
+            if (_cts != null && !_cts.IsCancellationRequested)
+            {
+                _cts.Cancel();
+                Logger.WoxDebug($"cancel init {_cts.Token.GetHashCode()} {Thread.CurrentThread.ManagedThreadId} {query.RawQuery}");
+                _cts.Dispose();
+            }
+
+            var source = new CancellationTokenSource();
+            _cts = source;
+            var token = source.Token;
+
             List<Result> results = new List<Result>();
             var minHeap = new MinHeap<SearchResult>(_comparsion);
 
@@ -152,41 +160,45 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
                 request.PrefixMask = "";
                 var terms = query.Terms.Select(p => new SearchRequest.Types.QueryTerm() { Term = p, CaseSensitive = false });
                 request.Terms.AddRange(terms);
-                using var response = _api.Search(request, cancellationToken: cts.Token);
-                _cts = cts;
-                const int max = int.MaxValue;
-                int index = 0;
+                using var response = _api.Search(request, cancellationToken: token);
 
                 while (response.ResponseStream.MoveNext().Result)
                 {
                     var serchResponse = response.ResponseStream.Current;
                     foreach (var item in serchResponse.Results)
                     {
-                        index++;
+                        if (token.IsCancellationRequested)
+                            break;
 
                         if (minHeap.Count < _settings.MaxSearchCount)
                         {
                             minHeap.Push(item);
                         }
-                        else if (_comparsion(minHeap.Peek(), item) < 0)
+                        else
                         {
-                            minHeap.Pop();
-                            minHeap.Push(item);
-                        }
+                            if (DateTime.UtcNow - _queryFinishedTime > TimeSpan.FromSeconds(1))
+                            {
+                                _queryFinishedTime = DateTime.UtcNow;
+                                var tmpResult = RankTopResult(minHeap.Clone(), token);
+                                ResultsUpdated?.Invoke(this, new ResultUpdatedEventArgs() { Query = query, Results = tmpResult });
+                            }
+                            if (_comparsion(minHeap.Peek(), item) < 0)
+                            {
 
-                        if (index > max)
-                        {
-                            cts.Cancel();
-                            break;
+                                minHeap.Pop();
+                                minHeap.Push(item);
+                            }
                         }
                     }
 
-                    if (cts.IsCancellationRequested)
-                        break;
+                    if (token.IsCancellationRequested)
+                        return results;
                 }
 
                 while (minHeap.Count > 0)
                 {
+                    if (token.IsCancellationRequested)
+                        return results;
                     var item = minHeap.Pop();
 
                     var unpackedVal = FuzzyUtil.UnpackValue(item.Val);
@@ -198,10 +210,12 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
                     }
                     Result result = new Result();
                     result.Score = _settings.BaseScore + item.Score;
-                    result.Title = path;
-                    result.SubTitle = $"[Nutstore FZF] {result.Title}";
+                    result.Title = Path.GetFileName(path);
+                    result.SubTitle = $"{path}";
                     result.IcoPath = path;
-                    result.TitleHighlightData = item.Pos.Select(p => (int)p + 2).ToList();
+                    var titleIndex = path.LastIndexOf('\\') + 1;
+                    result.TitleHighlightData = item.Pos.Select(p => (int)p + 2 - titleIndex).ToList();
+                    result.SubTitleHighlightData = item.Pos.Select(p => (int)p + 2).ToList();
                     result.IsFolder = unpackedVal.isDir;
                     result.Action = c =>
                     {
@@ -228,19 +242,70 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
                     };
                     results.Add(result);
                 }
-
                 _cts = null;
-
                 results.Reverse();
                 _queryFinishedTime = DateTime.UtcNow;
                 return results;
-
             }
             catch (Exception ex)
             {
                 Debug.WriteLine(ex);
             }
 
+            return results;
+        }
+
+        private List<Result> RankTopResult(MinHeap<SearchResult> minHeap, CancellationToken token)
+        {
+            List<Result> results = new List<Result>();
+            while (minHeap.Count > 0)
+            {
+                if (token.IsCancellationRequested)
+                    return results;
+                var item = minHeap.Pop();
+
+                var unpackedVal = FuzzyUtil.UnpackValue(item.Val);
+                var path = unpackedVal.path;
+                if (item.DbIdx != 0)
+                {
+                    var volume = FuzzyUtil.DbIndexToVolume(item.DbIdx);
+                    path = $"{volume}\\{path}";
+                }
+                Result result = new Result();
+                result.Score = _settings.BaseScore + item.Score;
+                result.Title = Path.GetFileName(path);
+                result.SubTitle = $"{path}";
+                result.IcoPath = path;
+                var titleIndex = path.LastIndexOf('\\') + 1;
+                result.TitleHighlightData = item.Pos.Select(p => (int)p + 2 - titleIndex).ToList();
+                result.SubTitleHighlightData = item.Pos.Select(p => (int)p + 2).ToList();
+                result.IsFolder = unpackedVal.isDir;
+                result.Action = c =>
+                {
+                    bool hide;
+                    try
+                    {
+                        Feedback(result, Convert.ToUInt64((DateTime.UtcNow - _queryFinishedTime).TotalMilliseconds));
+                        Process.Start(new ProcessStartInfo
+                        {
+                            FileName = path,
+                            UseShellExecute = true,
+                            WorkingDirectory = Path.GetDirectoryName(path),
+                        });
+                        hide = true;
+                    }
+                    catch (Win32Exception)
+                    {
+                        var name = $"Plugin: {_context.CurrentPluginMetadata.Name}";
+                        var message = "Can't open this file";
+                        _context.API.ShowMsg(name, message, string.Empty);
+                        hide = false;
+                    }
+                    return hide;
+                };
+                results.Add(result);
+            }
+            results.Reverse();
             return results;
         }
 

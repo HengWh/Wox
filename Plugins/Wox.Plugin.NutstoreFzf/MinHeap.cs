@@ -2,7 +2,7 @@
 {
     public class MinHeap<T>
     {
-        private readonly List<T> _heap = new List<T>();
+        private List<T> _heap = new List<T>();
         private readonly Comparison<T> _comparison;
 
         public MinHeap(Comparison<T> comparison)
@@ -32,6 +32,15 @@
         public T Peek()
         {
             return _heap[0];
+        }
+
+        public MinHeap<T> Clone()
+        {
+            var minHeap = new MinHeap<T>(_comparison);
+            var tmp = new T[_heap.Count];
+            _heap.CopyTo(tmp);
+            minHeap._heap = tmp.ToList();
+            return minHeap;
         }
 
         public int Count => _heap.Count;
