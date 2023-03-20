@@ -57,18 +57,21 @@ namespace Wox.Helper
 
         public void WriteLog()
         {
-            if (!_query.QueryRecords.Any())
-                return;
-            var logDir = Path.Combine(DataLocation.DataDirectory(), "QueryFeedLog");
-            if (!Directory.Exists(logDir))
-                Directory.CreateDirectory(logDir);
+            lock (_lock)
+            {
+                if (!_query.QueryRecords.Any())
+                    return;
+                var logDir = Path.Combine(DataLocation.DataDirectory(), "QueryFeedLog");
+                if (!Directory.Exists(logDir))
+                    Directory.CreateDirectory(logDir);
 
-            var logFile = Path.Combine(logDir, $"query-feed-{_query.CreateTime}.log");
-            var log = JsonConvert.SerializeObject(_query);
-            Debug.WriteLine(log);
-            Task.Run(() => File.WriteAllText(logFile, log));
+                var logFile = Path.Combine(logDir, $"query-feed-{_query.CreateTime}.log");
+                var log = JsonConvert.SerializeObject(_query);
+                Debug.WriteLine(log);
+                Task.Run(() => File.WriteAllText(logFile, log));
 
-            Init(DateTime.UtcNow);
+                Init(DateTime.UtcNow);
+            }
         }
     }
 }

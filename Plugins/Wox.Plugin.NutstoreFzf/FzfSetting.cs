@@ -4,11 +4,11 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
 {
     public class FzfSetting
     {
-        public int MaxSearchCount { get; set; } = 60;
+        public int MaxSearchCount { get; set; } = 5;
 
-        public int BaseScore { get; set; } = 100;
+        public int BaseScore { get; set; } = 200;
 
-        protected List<DeviceUsnState> UsnStates { get; set; } = new List<DeviceUsnState>();
+        public List<DeviceUsnState> UsnStates { get; set; } = new List<DeviceUsnState>();
 
         public void AddOrUpdateUsnState(DeviceUsnState state)
         {

@@ -10,6 +10,8 @@ namespace Wox.Plugin
     {
         private string _icoPath;
 
+        public bool IsFolder { get; set; }
+
         public string Title { get; set; }
 
         public string SubTitle { get; set; }

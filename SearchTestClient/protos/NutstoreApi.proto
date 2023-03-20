@@ -65,14 +65,6 @@ message UpdateResponse {
   // Currently empty
 }
 
-message PurgeRequest {
-  repeated uint32 db_idx = 1;
-}
-
-message PurgeResponse {
-  // Currently empty
-}
-
 // Query LMDB stat info (mainly used for debugging)
 message StatRequest {
   // Currently empty
@@ -114,9 +106,26 @@ message FeedbackResponse {
 }
 
 service ApiService {
+  rpc SearchSync(SearchRequest) returns (SearchResponse); // Debug API
+
   rpc Search(SearchRequest) returns (stream SearchResponse); // Streaming search API
   rpc Update(UpdateRequest) returns (UpdateResponse);
-  rpc Purge(PurgeRequest) returns (PurgeResponse);
   rpc Stat(StatRequest) returns (StatResponse);
   rpc Feedback(FeedbackRequest) returns (FeedbackResponse);
+}
+
+// EchoRequest is the request for echo.
+message EchoRequest {
+  string message = 1;
+}
+
+// EchoResponse is the response for echo.
+message EchoResponse {
+  string message = 1;
+}
+
+// Echo is the echo service.
+service EchoService {
+  rpc Echo(EchoRequest) returns (EchoResponse);
+  rpc StreamingEcho(EchoRequest) returns (stream EchoResponse);
 }

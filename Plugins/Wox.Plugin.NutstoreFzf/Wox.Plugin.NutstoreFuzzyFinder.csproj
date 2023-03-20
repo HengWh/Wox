@@ -40,8 +40,7 @@
 		<ProjectReference Include="..\..\Wox.Infrastructure\Wox.Infrastructure.csproj" />
 		<ProjectReference Include="..\..\Wox.Plugin\Wox.Plugin.csproj" />
 		<ProjectReference Include="..\..\Wox.Proto\Wox.Proto.csproj" />
-		<ProjectReference Include="..\..\Wox.UsnParser\Wox.UsnParser.csproj" />
-		<!--<ProjectReference Include="..\..\Wox.Proto\Wox.Proto.csproj" />-->
+		<!--<ProjectReference Include="..\..\Wox.UsnParser\Wox.UsnParser.csproj" />-->
 	</ItemGroup>
 
 </Project>

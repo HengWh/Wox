@@ -61,7 +61,7 @@
     </Window.InputBindings>
     <Border Style="{DynamicResource WindowBorderStyle}" MouseDown="OnMouseDown" >
         <StackPanel Orientation="Vertical">
-            <Grid>
+            <Grid >
                 <TextBox x:Name="QueryTextSuggestionBox"
                          Style="{DynamicResource QueryTextSuggestionBoxStyle}"
                          IsEnabled="False">
@@ -95,7 +95,19 @@
                   Y1="0" Y2="0" X2="100" Height="2" Width="752" StrokeThickness="1">
             </Line>
             <ContentControl>
-                <wox:ResultListBox x:Name="ResultListBox" DataContext="{Binding Results}" PreviewMouseDown="OnPreviewMouseButtonDown" />
+                <Grid Background="Transparent">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <wox:ResultListBox x:Name="WindowsIndexerResultListBox" DataContext="{Binding WindowsIndexResults}" PreviewMouseDown="OnPreviewMouseButtonDown" 
+                                       MaxHeight="600"/>
+                    <wox:ResultListBox x:Name="ResultListBox" DataContext="{Binding Results}" PreviewMouseDown="OnPreviewMouseButtonDown" 
+                                       MaxHeight="600" Grid.Column="1"/>
+                    <wox:ResultListBox x:Name="EverythingResultListBox" DataContext="{Binding EveryThingResults}" PreviewMouseDown="OnPreviewMouseButtonDown" 
+                                       MaxHeight="600" Grid.Column="2"/>
+                </Grid>
             </ContentControl>
             <ContentControl>
                 <wox:ResultListBox DataContext="{Binding ContextMenu}" PreviewMouseDown="OnPreviewMouseButtonDown" />

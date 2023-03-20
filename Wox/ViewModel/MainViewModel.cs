@@ -33,6 +33,10 @@ namespace Wox.ViewModel
     {
         #region Private Fields
 
+        const string EverythingId = "D2D2C23B084D411DB66FE0C79D6C2A6E";
+        const string WindowsIndexerId = "2140FC9819AD43A3A616E2735815C27C";
+        const string ProgramId = "791FC278BA414111B8D1886DFE447410";
+
         private Query _lastQuery;
         private string _queryTextBeforeLeaveResults;
 
@@ -76,6 +80,8 @@ namespace Wox.ViewModel
 
             ContextMenu = new ResultsViewModel(_settings);
             Results = new ResultsViewModel(_settings);
+            WindowsIndexResults = new ResultsViewModel(_settings);
+            EveryThingResults = new ResultsViewModel(_settings);
             History = new ResultsViewModel(_settings);
             _selectedResults = Results;
 
@@ -234,9 +240,9 @@ namespace Wox.ViewModel
                     {
                         return p.Result.PluginID switch
                         {
-                            "D2D2C23B084D411DB66FE0C79D6C2A6E" => p.Result.SubTitle, //Everything
-                            "791FC278BA414111B8D1886DFE447410" => p.Result.SubTitle, //Program
-                            "2140FC9819AD43A3A616E2735815C27C" => p.Result.SubTitle.Replace("[WindowsSearch]", "")?.TrimStart(), //WindowsSearch.
+                            EverythingId => p.Result.SubTitle, //Everything
+                            ProgramId => p.Result.SubTitle, //Program
+                            WindowsIndexerId => p.Result.SubTitle.Replace("[WindowsSearch]", "")?.TrimStart(), //WindowsSearch.
                             _ => p.ToString()
                         };
                     }));
@@ -306,6 +312,8 @@ namespace Wox.ViewModel
         }
 
         public ResultsViewModel Results { get; private set; }
+        public ResultsViewModel WindowsIndexResults { get; private set; }
+        public ResultsViewModel EveryThingResults { get; private set; }
         public ResultsViewModel ContextMenu { get; private set; }
         public ResultsViewModel History { get; private set; }
 
@@ -349,6 +357,8 @@ namespace Wox.ViewModel
                 else
                 {
                     Results.Visbility = Visibility.Collapsed;
+                    WindowsIndexResults.Visbility = Visibility.Collapsed;
+                    EveryThingResults.Visbility = Visibility.Collapsed;
                     _queryTextBeforeLeaveResults = QueryText;
 
 
@@ -549,9 +559,9 @@ namespace Wox.ViewModel
                                     {
                                         return plugin.Metadata.ID switch
                                         {
-                                            "D2D2C23B084D411DB66FE0C79D6C2A6E" => p.SubTitle, //Everything
-                                            "791FC278BA414111B8D1886DFE447410" => p.SubTitle, //Program
-                                            "2140FC9819AD43A3A616E2735815C27C" => p.SubTitle.Replace("[WindowsSearch]", "")?.TrimStart(), //WindowsSearch.
+                                            EverythingId => p.SubTitle, //Everything
+                                            ProgramId => p.SubTitle, //Program
+                                            WindowsIndexerId => p.SubTitle.Replace("[WindowsSearch]", "")?.TrimStart(), //WindowsSearch.
                                             _ => p.ToString()
                                         };
                                     }));
@@ -600,7 +610,11 @@ namespace Wox.ViewModel
                 else
                 {
                     Results.Clear();
+                    WindowsIndexResults.Clear();
+                    EveryThingResults.Clear();
                     Results.Visbility = Visibility.Collapsed;
+                    WindowsIndexResults.Visbility = Visibility.Collapsed;
+                    EveryThingResults.Visbility = Visibility.Collapsed;
                 }
             }, token).ContinueWith(ErrorReporting.UnhandledExceptionHandleTask, TaskContinuationOptions.OnlyOnFaulted);
 
@@ -673,7 +687,9 @@ namespace Wox.ViewModel
 
         private bool SelectedIsFromQueryResults()
         {
-            var selected = SelectedResults == Results;
+            var selected = SelectedResults == Results ||
+                SelectedResults == WindowsIndexResults ||
+                SelectedResults == EveryThingResults;
             return selected;
         }
 
@@ -841,11 +857,29 @@ namespace Wox.ViewModel
                 }
             }
 
-            Results.AddResults(updates);
+            var normalList = updates.Where(p => p.Metadata.ID != EverythingId && p.Metadata.ID != WindowsIndexerId).ToList();
+            if (normalList.Any())
+                Results.AddResults(updates);
+
+            var everylist = updates.Where(p => p.Metadata.ID == EverythingId).ToList();
+            if (everylist.Any())
+                EveryThingResults.AddResults(everylist);
+
+            var indexerlist = updates.Where(p => p.Metadata.ID == WindowsIndexerId).ToList();
+            if (indexerlist.Any())
+                WindowsIndexResults.AddResults(indexerlist);
 
             if (Results.Visbility != Visibility.Visible && Results.Count > 0)
             {
                 Results.Visbility = Visibility.Visible;
+            }
+            if (EveryThingResults.Visbility != Visibility.Visible && EveryThingResults.Count > 0)
+            {
+                EveryThingResults.Visbility = Visibility.Visible;
+            }
+            if (WindowsIndexResults.Visbility != Visibility.Visible && WindowsIndexResults.Count > 0)
+            {
+                WindowsIndexResults.Visbility = Visibility.Visible;
             }
         }
 

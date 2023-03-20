@@ -1,12 +1,14 @@
-﻿using Newtonsoft.Json;
+﻿using Grpc.Core;
+using Newtonsoft.Json;
 using NLog;
-using Wox.Infrastructure.Logger;
+using NLog.Config;
+using NLog.Targets;
 
 namespace Wox.UsnParser
 {
     public class Program
     {
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         private const string SEARCH_MFT = "-search";
         private const string READ_HISTORY = "-read";
         private const string MONITOR_USN = "-monitor";
@@ -18,28 +20,56 @@ namespace Wox.UsnParser
         private static string _volume;
         private static ulong _usnid;
 
-        private int Main(string[]? args)
+        private static int Main(string[]? args)
         {
             try
             {
-                if (args == null || !ParserArgs(args))
+                var CurrentLogDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Wox", "Logs","UsnParser");
+                if (!Directory.Exists(CurrentLogDirectory))
                 {
-                    Logger.WoxWarn($"Arguments is invalid. {args}");
-                    return -1;
+                    Directory.CreateDirectory(CurrentLogDirectory);
                 }
 
-                return _mode switch
+                var configuration = new LoggingConfiguration();
+                var fileTarget = new FileTarget()
                 {
-                    Mode.SEARCH_MFT => SearchMFT(),
-                    Mode.READ_HISTORY => ReadHistory(),
-                    Mode.MONITOR_USN => MonitorUsn(),
-                    Mode.GET_USN_DATA => GetUsnData(),
-                    _ => -1,
+                    Header = "[Header]\n",
+                    Footer = "[Footer]\n",
+                    FileName = CurrentLogDirectory.Replace(@"\", "/") + "/${shortdate}.txt",
                 };
+#if DEBUG
+                configuration.AddRule(LogLevel.Debug, LogLevel.Info, fileTarget);
+#else
+                configuration.AddRule(LogLevel.Info, LogLevel.Fatal, fileTarget);
+#endif
+                LogManager.Configuration = configuration;
+
+                Server server = new Server();
+                server.Services.Add(Usn.BindService(new UsnGrpcService()));
+                server.Ports.Add(new ServerPort("127.0.0.1", 38998, ServerCredentials.Insecure));
+                server.Start();
+
+                logger.Info($"Usn Grpc service start.");
+
+                if (args?.Length > 1 && !ParserArgs(args))
+                {
+                    return _mode switch
+                    {
+                        Mode.SEARCH_MFT => SearchMFT(),
+                        Mode.READ_HISTORY => ReadHistory(),
+                        Mode.MONITOR_USN => MonitorUsn(),
+                        Mode.GET_USN_DATA => GetUsnData(),
+                        _ => -1,
+                    };
+                }
+
+                EventWaitHandle waitHandle = new AutoResetEvent(false);
+                waitHandle.WaitOne();
+
             }
             catch (Exception ex)
             {
-                Logger.WoxWarn($"Unknown exception: {ex.Message}");
+                logger.Warn($"Unknown exception: {ex.Message}");
             }
 
             return -1;
@@ -113,7 +143,7 @@ namespace Wox.UsnParser
                         _usnid = Convert.ToUInt64(args[i + 1]);
                         break;
                     default:
-                        Logger.WoxWarn($"Unknown argument {key}");
+                        logger.Warn($"Unknown argument {key}");
                         break;
                 }
             }

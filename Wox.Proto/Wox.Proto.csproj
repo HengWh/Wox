@@ -8,6 +8,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="NutstoreUsn.proto" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="Google.Protobuf" Version="3.21.12" />
 		<PackageReference Include="Grpc" Version="2.46.6" />
 		<PackageReference Include="Grpc.Core" Version="2.46.6" />
@@ -18,6 +22,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<Protobuf Include="NutstoreUsn.proto" />
 		<Protobuf Include="NutstoreApi.proto" />
 	</ItemGroup>
 

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,7 +12,14 @@ namespace Wox.Infrastructure.UserSettings
     {
         public const string PortableFolderName = "UserData";
         public const string DeletionIndicatorFile = ".dead";
-        public static string PortableDataPath = Path.Combine(Constant.ProgramDirectory, PortableFolderName);
+        public static string PortableDataPath
+        {
+            get
+            {
+                var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                return Path.Combine(path, PortableFolderName);
+            }
+        }
         public static string RoamingDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Constant.Wox);
         public static string DataDirectory()
         {

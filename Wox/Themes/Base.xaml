@@ -46,8 +46,8 @@
         <Setter Property="Padding" Value="8 10 8 8" />
     </Style>
     <Style x:Key="BaseWindowStyle" TargetType="{x:Type Window}">
-        <Setter Property="Width" Value="800" />
-        <Setter Property="MaxWidth" Value="800" />
+        <Setter Property="Width" Value="1200" />
+        <Setter Property="MaxWidth" Value="1200" />
         <Setter Property="RenderOptions.ClearTypeHint" Value="Enabled"/>
     </Style>
 

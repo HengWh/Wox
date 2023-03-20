@@ -65,12 +65,12 @@ namespace Wox.UsnParser.Native
             FileReferenceNumber = (ulong)Marshal.ReadInt64(ptrToUsnRecord, FR_OFFSET);
             ParentFileReferenceNumber = (ulong)Marshal.ReadInt64(ptrToUsnRecord, PFR_OFFSET);
             USN = Marshal.ReadInt64(ptrToUsnRecord, USN_OFFSET);
-            TimeStamp = Marshal.ReadInt64(ptrToUsnRecord, TIMESTAMP_OFFSET);
+            //TimeStamp = Marshal.ReadInt64(ptrToUsnRecord, TIMESTAMP_OFFSET);
             Reason = (uint)Marshal.ReadInt32(ptrToUsnRecord, REASON_OFFSET);
-            SourceInfo = (uint)Marshal.ReadInt32(ptrToUsnRecord, SOURCE_INFO_OFFSET);
-            SecurityId = (uint)Marshal.ReadInt32(ptrToUsnRecord, SECURITY_ID_OFFSET);
+            //SourceInfo = (uint)Marshal.ReadInt32(ptrToUsnRecord, SOURCE_INFO_OFFSET);
+            //SecurityId = (uint)Marshal.ReadInt32(ptrToUsnRecord, SECURITY_ID_OFFSET);
 
-            _fileAttributes = (uint)Marshal.ReadInt32(ptrToUsnRecord, FA_OFFSET);
+            //_fileAttributes = (uint)Marshal.ReadInt32(ptrToUsnRecord, FA_OFFSET);
 
             var fileNameLength = Marshal.ReadInt16(ptrToUsnRecord, FNL_OFFSET);
             var fileNameOffset = Marshal.ReadInt16(ptrToUsnRecord, FN_OFFSET);

@@ -34,6 +34,10 @@ namespace Wox.UsnParser
             _usnJournalRootHandle = GetRootHandle();
         }
 
+        public UsnJournal(string volume): this(new DriveInfo(volume))
+        {
+        }
+
         public void CreateUsnJournal(ulong maxSize, ulong allocationDelta)
         {
             if (!_isNtfsVolume)

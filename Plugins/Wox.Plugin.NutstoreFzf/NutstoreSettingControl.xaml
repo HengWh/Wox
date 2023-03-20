@@ -7,33 +7,45 @@
              Loaded="UserControl_Loaded"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <Border BorderThickness="1" BorderBrush="#dcdcdc" Margin="10" Padding="10">
-            <StackPanel Orientation="Vertical" VerticalAlignment="Stretch" Margin="10">
-                <StackPanel Orientation="Horizontal" Margin="0 10">
-                    <TextBlock Text="Max search count: " Width="120"/>
-                    <TextBox x:Name="txtCount" Text="0" Width="60"/>
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" Margin="0 0 10 0">
+        <Grid>
+            <Button x:Name="btnSave" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="30" Content="Save" Padding="20 5" Click="btnSave_Click"/>
+            <Border BorderThickness="1" BorderBrush="#dcdcdc" Margin="10">
+                <StackPanel Orientation="Vertical" VerticalAlignment="Stretch" Margin="10">
+                    <StackPanel Orientation="Horizontal" Margin="0 10">
+                        <TextBlock Text="Max search count: " Width="120"/>
+                        <TextBox x:Name="txtCount" Text="0" Width="60"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0 10">
+                        <TextBlock Text="Base score: " Width="120"/>
+                        <TextBox x:Name="txtScore" Text="0" Width="60"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Vertical" Margin="0 10">
+                        <TextBlock Text="USN states: " Width="120" HorizontalAlignment="Left"/>
+                        <DataGrid x:Name="datagridUSN" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" 
+                                  MinHeight="100" MaxHeight="200" Width="500" HorizontalAlignment="Left" ColumnWidth="*"/>
+                    </StackPanel>
+                    <Rectangle Height="1" Fill="Gray" Margin="0 10"/>
+                    <Grid Margin="0 10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left">
+                            <Button x:Name="btnQuery" Content="Query LMDB stat info (DEBUG)" Foreground="#FF2222" 
+                                 Padding="7 3" Click="btnQuery_Click"/>
+                            <Button x:Name="btnPurge" Content="Purge LMDB (DEBUG)" Foreground="#FF2222"  Margin="10 0"
+                                 Padding="15 7" Click="btnPurge_Click"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="1"  Orientation="Vertical">
+                            <TextBox x:Name="tbDbInfo" BorderThickness="1" Background="Transparent" Margin="0 10" TextWrapping="Wrap" Foreground="Black" Padding="3"/>
+                            <DataGrid x:Name="dataGridDbInfo" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" 
+                                      MinHeight="100" MaxHeight="200" Width="500" HorizontalAlignment="Left" ColumnWidth="*"/>
+                        </StackPanel>
+                    </Grid>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="0 10">
-                    <TextBlock Text="Base score: " Width="120"/>
-                    <TextBox x:Name="txtScore" Text="0" Width="60"/>
-                </StackPanel>
-                <StackPanel Orientation="Vertical" Margin="0 10">
-                    <TextBlock Text="USN states: " Width="120"/>
-                    <DataGrid x:Name="datagridUSN" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" MinHeight="100" MaxHeight="200"/>
-                </StackPanel>
-                <Rectangle Height="1" Fill="Gray" Margin="0 10"/>
-                <Grid Margin="0 10">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition />
-                    </Grid.RowDefinitions>
-                    <Button Content="Query LMDB stat info" Foreground="#FF2222" VerticalAlignment="Top" HorizontalAlignment="Left" Padding="15 7"
-                    Click="Button_Click"/>
-                    <TextBox Grid.Row="1" Name="txtDbInfo" BorderThickness="1" Background="Transparent" Margin="0 10"
-                             TextWrapping="Wrap" ScrollViewer.CanContentScroll="True"/>
-                </Grid>
-            </StackPanel>
-        </Border>
-    </Grid>
+            </Border>
+        </Grid>
+    </ScrollViewer>
 </UserControl>

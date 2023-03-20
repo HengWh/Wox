@@ -20,7 +20,7 @@ namespace Wox.Infrastructure.Logger
 
         static Log()
         {
-            CurrentLogDirectory = Path.Combine(DataLocation.DataDirectory(), DirectoryName, Constant.Version);
+            CurrentLogDirectory = Path.Combine(DataLocation.DataDirectory(), DirectoryName, DateTime.Now.ToString("yyyyMMdd"));
             if (!Directory.Exists(CurrentLogDirectory))
             {
                 Directory.CreateDirectory(CurrentLogDirectory);
@@ -55,6 +55,12 @@ namespace Wox.Infrastructure.Logger
         public static void WoxDebug(this NLog.Logger logger, string message, [CallerMemberName] string methodName = "")
         {
             Debug.WriteLine($"DEBUG|{logger.Name}|{methodName}|{message}");
+            logger.Debug($"{methodName}|{message}");
+        }
+
+        public static void WoxWriteLine(this NLog.Logger logger, string message, [CallerMemberName] string methodName = "")
+        {
+            Console.WriteLine($"DEBUG|{logger.Name}|{methodName}|{message}");
             logger.Debug($"{methodName}|{message}");
         }
 

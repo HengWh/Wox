@@ -1,0 +1,21 @@
+﻿syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+service Usn{
+  rpc GetJournalData(Journal) returns (JournalData);
+  rpc PushMasterFileTable(Journal) returns (google.protobuf.Empty);
+  rpc PushUsnHistory(JournalData) returns (google.protobuf.Empty);
+  rpc MoonitorUsn(Journal) returns (google.protobuf.Empty);
+  rpc CancelMoonitorUsn(Journal) returns (google.protobuf.Empty);
+}
+
+message Journal{
+	string Volume = 1;
+}
+
+message JournalData{
+	string Volume = 1;
+	uint64 JournalId = 2;
+	uint64 NextUsn = 3;
+}
