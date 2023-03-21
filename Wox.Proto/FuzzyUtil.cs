@@ -6,10 +6,9 @@ namespace Wox.Proto
     public static class FuzzyUtil
     {
         /// <summary>
-        /// Unpackaged response data
+        /// Unpacking response data by UTF8 encode.
         /// </summary>
-        /// <param name="data">Fuzzy Search response value, the first byte means isDir, other bytes means full path.</param>
-        /// <returns>isDir and full path</returns>
+        /// <returns>full path</returns>
         public static string UnpackValue(ByteString data)
         {
             if (data == null || data.Length == 0)
