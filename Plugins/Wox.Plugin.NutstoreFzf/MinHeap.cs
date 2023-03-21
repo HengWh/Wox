@@ -43,6 +43,11 @@
             return minHeap;
         }
 
+        public bool Contains(T item)
+        {
+            return _heap.Any(p => _comparison(p, item) == 0);
+        }
+
         public int Count => _heap.Count;
 
         private void SiftUp(int i, T value)

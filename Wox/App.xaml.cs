@@ -5,10 +5,8 @@ using System.Windows;
 using System.Collections.Generic;
 using System.Threading;
 using System.Globalization;
-
 using CommandLine;
 using NLog;
-
 using Wox.Core;
 using Wox.Core.Configuration;
 using Wox.Core.Plugin;
@@ -22,7 +20,6 @@ using Wox.Infrastructure.UserSettings;
 using Wox.ViewModel;
 using Stopwatch = Wox.Infrastructure.Stopwatch;
 using Wox.Infrastructure.Exception;
-using Sentry;
 using System.IO;
 
 namespace Wox
@@ -77,17 +74,17 @@ namespace Wox
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
             Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
 
-            using (ErrorReporting.InitializedSentry(_systemLanguage))
+            //using (ErrorReporting.InitializedSentry(_systemLanguage))
+            //{
+            if (SingleInstance<App>.InitializeAsFirstInstance(Unique))
             {
-                if (SingleInstance<App>.InitializeAsFirstInstance(Unique))
+                using (var application = new App())
                 {
-                    using (var application = new App())
-                    {
-                        application.InitializeComponent();
-                        application.Run();
-                    }
+                    application.InitializeComponent();
+                    application.Run();
                 }
             }
+            //}
         }
 
         private void OnStartup(object sender, StartupEventArgs e)
@@ -175,9 +172,9 @@ namespace Wox
                 KillProcess(_fzf);
                 KillProcess(_usnPaerser);
             }
-            catch
+            catch(Exception ex)
             {
-                //ignore
+                Logger.Warn(ex);
             }
         }
 

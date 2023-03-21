@@ -99,8 +99,8 @@ namespace Wox.UsnParser
         private void PushUsnEntries(UsnJournal journal, IEnumerable<UsnEntry> usnEntries)
         {
             var updateRequest = new UpdateRequest();
-            var db_index = FuzzyUtil.VolumeToDbIndex(journal.VolumeName);
-            var volume = journal.VolumeName.TrimEnd('\\');
+            string volume = journal.VolumeName.TrimEnd('\\');
+            var db_index = FuzzyUtil.VolumeToDbIndex(volume);
             foreach (var entry in usnEntries)
             {
                 if (TryGetPathFromFileId(journal, entry.ParentFileReferenceNumber, out var path))
@@ -109,7 +109,7 @@ namespace Wox.UsnParser
                     {
                         DbIdx = db_index,
                         Key = entry.FileReferenceNumber,
-                        Val = FuzzyUtil.PackValue(Path.Combine(volume, path, entry.Name), entry.IsFolder),
+                        Val = FuzzyUtil.PackValue(Path.Combine(volume + path, entry.Name), entry.IsFolder),
                         Deleted = false
                     };
                     updateRequest.Args.Add(args);
@@ -120,27 +120,42 @@ namespace Wox.UsnParser
 
         private void FilterAndPushUsnEntry(UsnJournal journal, UsnEntry entry)
         {
-            const uint delete = (uint)UsnReason.RENAME_OLD_NAME | (uint)UsnReason.FILE_DELETE;
-            const uint create = (uint)UsnReason.RENAME_NEW_NAME | (uint)UsnReason.FILE_CREATE;
+            const uint renameOldName = (uint)UsnReason.RENAME_OLD_NAME;
+            const uint renameNewName = (uint)UsnReason.RENAME_NEW_NAME | (uint)UsnReason.CLOSE;
+            const uint delete = (uint)UsnReason.FILE_DELETE | (uint)UsnReason.CLOSE;
+            const uint create = (uint)UsnReason.FILE_CREATE | (uint)UsnReason.CLOSE;
 
-            var isDelete = (entry.Reason & delete) > 0;
-            var isCreate = (entry.Reason & create) > 0;
+            var isDelete = entry.Reason == renameOldName || entry.Reason == delete;
+            var isCreate = entry.Reason == renameNewName || entry.Reason == create;
             if (!isCreate && !isDelete)
                 return;
 
-            if (TryGetPathFromFileId(journal, entry.ParentFileReferenceNumber, out var path))
+            string volume = journal.VolumeName.TrimEnd('\\');
+            var updateRequest = new UpdateRequest();
+            var args = new UpdateRequest.Types.UpdateArgs()
             {
-                var updateRequest = new UpdateRequest();
-                var args = new UpdateRequest.Types.UpdateArgs()
+                DbIdx = FuzzyUtil.VolumeToDbIndex(journal.VolumeName),
+                Key = entry.FileReferenceNumber,
+                Val = Google.Protobuf.ByteString.Empty,
+                Deleted = isDelete
+            };
+
+            if (isCreate)
+            {
+                if (TryGetPathFromFileId(journal, entry.ParentFileReferenceNumber, out var path))
                 {
-                    DbIdx = FuzzyUtil.VolumeToDbIndex(journal.VolumeName),
-                    Key = entry.FileReferenceNumber,
-                    Val = FuzzyUtil.PackValue(Path.Combine(journal.VolumeName.TrimEnd('\\'), path, entry.Name), entry.IsFolder),
-                    Deleted = isDelete
-                };
-                updateRequest.Args.Add(args);
-                _api.UpdateAsync(updateRequest);
+                    var fullPath = Path.Combine(volume + path, entry.Name);
+                    args.Val = FuzzyUtil.PackValue(fullPath, entry.IsFolder);
+                }
+                else
+                {
+                    logger.Warn($"Why get parent path is null?\nName={entry.Name}, FileKey={entry.FileReferenceNumber}, ParentKey={entry.ParentFileReferenceNumber}.");
+                    return;
+                }
             }
+
+            updateRequest.Args.Add(args);
+            _api.UpdateAsync(updateRequest);
         }
 
 
@@ -155,7 +170,7 @@ namespace Wox.UsnParser
                 if (PathDictionary.TryGetValue(key, out path))
                     return true;
 
-                if(journal.TryGetPathFromFileId(id, out path))
+                if (journal.TryGetPathFromFileId(id, out path))
                 {
                     PathDictionary.Add(key, path);
                     return true;

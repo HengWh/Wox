@@ -24,25 +24,9 @@ namespace Wox.UsnParser
         {
             try
             {
-                var CurrentLogDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Wox", "Logs","UsnParser");
-                if (!Directory.Exists(CurrentLogDirectory))
-                {
-                    Directory.CreateDirectory(CurrentLogDirectory);
-                }
+                InitLog();
 
-                var configuration = new LoggingConfiguration();
-                var fileTarget = new FileTarget()
-                {
-                    Header = "[Header]\n",
-                    Footer = "[Footer]\n",
-                    FileName = CurrentLogDirectory.Replace(@"\", "/") + "/${shortdate}.txt",
-                };
-#if DEBUG
-                configuration.AddRule(LogLevel.Debug, LogLevel.Info, fileTarget);
-#else
-                configuration.AddRule(LogLevel.Info, LogLevel.Fatal, fileTarget);
-#endif
-                LogManager.Configuration = configuration;
+                AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
                 Server server = new Server();
                 server.Services.Add(Usn.BindService(new UsnGrpcService()));
@@ -73,6 +57,36 @@ namespace Wox.UsnParser
             }
 
             return -1;
+        }
+
+        private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            logger.Error((Exception)e.ExceptionObject);
+        }
+
+        private static void InitLog()
+        {
+            var CurrentLogDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Wox", "Logs", "UsnParser");
+            if (!Directory.Exists(CurrentLogDirectory))
+            {
+                Directory.CreateDirectory(CurrentLogDirectory);
+            }
+
+            var configuration = new LoggingConfiguration();
+            var fileTarget = new FileTarget()
+            {
+                Header = "[Header]",
+                Footer = "[Footer]\n",
+                FileName = CurrentLogDirectory.Replace(@"\", "/") + "/${shortdate}.log",
+                ArchiveAboveSize = 4 * 1024 * 1024,
+                Layout = "${longdate}|${level: uppercase = true}|${logger}\n${message}"
+            };
+#if DEBUG
+            configuration.AddRule(LogLevel.Debug, LogLevel.Info, fileTarget);
+#else
+            configuration.AddRule(LogLevel.Info, LogLevel.Fatal, fileTarget);
+#endif
+            LogManager.Configuration = configuration;
         }
 
         private static int SearchMFT()
@@ -112,8 +126,6 @@ namespace Wox.UsnParser
             return 0;
         }
 
-
-        //
         private static bool ParserArgs(string[] args)
         {
             for (int i = 0; i < args.Length; i++)

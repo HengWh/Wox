@@ -850,7 +850,7 @@ namespace Wox.ViewModel
 
             var normalList = updates.Where(p => p.Metadata.ID != EverythingId && p.Metadata.ID != WindowsIndexerId).ToList();
             if (normalList.Any())
-                Results.AddResults(updates);
+                Results.AddResults(normalList);
 
             var everylist = updates.Where(p => p.Metadata.ID == EverythingId).ToList();
             if (everylist.Any())

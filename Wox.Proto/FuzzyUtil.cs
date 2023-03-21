@@ -10,12 +10,12 @@ namespace Wox.Proto
         /// </summary>
         /// <param name="data">Fuzzy Search response value, the first byte means isDir, other bytes means full path.</param>
         /// <returns>isDir and full path</returns>
-        public static (string path, bool isDir) UnpackValue(ByteString data)
+        public static string UnpackValue(ByteString data)
         {
-            var bytes = data.ToByteArray();
-            var isDir = bytes[0] == 1;
-            var path = Encoding.UTF8.GetString(bytes.Skip(1).ToArray());
-            return (path, isDir);
+            if (data == null || data.Length == 0)
+                return string.Empty;
+
+            return  Encoding.UTF8.GetString(data.ToByteArray());
         }
 
         /// <summary>
@@ -40,16 +40,16 @@ namespace Wox.Proto
         {
             //Volume is C...Z,
             //ASCⅡ is 67...90.
-            //Db index of C is 1
+            //Db index of C is 2
 
             int code = (int)volume.ToUpper()[0];
-            return (uint)Math.Max(1, code - 66);
+            return (uint)Math.Max(1, code - 65);
         }
 
 
         public static string DbIndexToVolume(uint index)
         {
-            char c = (char)(index + 66);
+            char c = (char)(index + 65);
             return c.ToString() + ":";
         }
 
