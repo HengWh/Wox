@@ -26,7 +26,7 @@ namespace Wox.UsnParser
 
         public static IEnumerable<UsnEntry> SearchMasterFileTable(UsnJournal journal)
         {
-            var usnEntries = journal.EnumerateUsnEntries("*", FilterOption.All);
+            var usnEntries = journal.EnumerateUsnEntries();
             return usnEntries;
         }
 

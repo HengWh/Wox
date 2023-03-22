@@ -15,7 +15,6 @@ namespace Wox.UsnParser
         private readonly ApiService.ApiServiceClient _api;
         private readonly CancellationTokenSource _cancelTokenSource;
         private readonly CancellationToken _token;
-        private readonly Dictionary<string, string> PathDictionary = new Dictionary<string, string>();
 
         public UsnGrpcService()
         {
@@ -28,10 +27,10 @@ namespace Wox.UsnParser
 
         public override Task<JournalData> GetJournalData(Journal request, ServerCallContext context)
         {
-            logger.Info($"GetJournalData request is {request}");
 
             var usnJournal = new UsnJournal(request.Volume);
             var state = usnJournal.GetUsnJournalState();
+            logger.Info($"GetJournalData succeeded. Volume is {request.Volume}, JournaleId is {state.UsnJournalID}, NextUsn is {state.NextUsn}.");
             return Task.FromResult(new JournalData()
             {
                 Volume = request.Volume,
@@ -44,13 +43,13 @@ namespace Wox.UsnParser
         {
             try
             {
-                logger.Info($"PushMasterFileTable request is {request}");
                 var stopwatch = Stopwatch.StartNew();
                 var usnJournal = new UsnJournal(request.Volume);
                 var entries = UsnHelper.SearchMasterFileTable(usnJournal);
-                PushUsnEntries(usnJournal, entries);
+
+                var count = PushUsnEntries(usnJournal, entries);
                 stopwatch.Stop();
-                logger.Info($"PushMasterFileTable succeeded.{entries.Count()} entries time span {stopwatch.ElapsedMilliseconds}ms");
+                logger.Info($"PushMasterFileTable succeeded.{request.Volume} {count} entries time span {stopwatch.ElapsedMilliseconds}ms");
             }
             catch (Exception ex)
             {
@@ -64,7 +63,6 @@ namespace Wox.UsnParser
         {
             try
             {
-                logger.Info($"PushUsnHistory request is {request}");
                 var usnJournal = new UsnJournal(request.Volume);
                 var entries = UsnHelper.ReadHistoryUsnJournals(usnJournal, request.NextUsn);
                 foreach (var entry in entries)
@@ -82,40 +80,77 @@ namespace Wox.UsnParser
 
         public override Task<Empty> MoonitorUsn(Journal request, ServerCallContext context)
         {
-            logger.Info($"MoonitorUsn request is {request}");
-
             var usnJournal = new UsnJournal(request.Volume);
             UsnHelper.MonitorRealTimeUsnJournal(entry => FilterAndPushUsnEntry(usnJournal, entry), usnJournal, _token);
+            logger.Info($"MoonitorUsn {request.Volume} is started.");
             return Task.FromResult(new Empty());
         }
 
         public override Task<Empty> CancelMoonitorUsn(Journal request, ServerCallContext context)
         {
-            logger.Info($"CancelMoonitorUsn request is {request}");
+            logger.Info($"CancelMoonitorUsn {request.Volume}");
             _cancelTokenSource.Cancel();
             return Task.FromResult(new Empty());
         }
 
-        private void PushUsnEntries(UsnJournal journal, IEnumerable<UsnEntry> usnEntries)
+        private ulong PushUsnEntries(UsnJournal journal, IEnumerable<UsnEntry> usnEntries)
         {
+            ulong count = 0;
+            var parentDictionary = new Dictionary<ulong, string>();
+            var dirList = new List<UsnEntry>();
+            var fileList = new List<UsnEntry>();
+
             var updateRequest = new UpdateRequest();
             string volume = journal.VolumeName.TrimEnd('\\');
             var db_index = FuzzyUtil.VolumeToDbIndex(volume);
+
             foreach (var entry in usnEntries)
             {
-                if (TryGetPathFromFileId(journal, entry.ParentFileReferenceNumber, out var path))
+                if (entry.IsFolder)
+                    dirList.Add(entry);
+                else
+                    fileList.Add(entry);
+            }
+
+            foreach (var dirEntry in dirList)
+            {
+                string parent = string.Empty;
+                if (parentDictionary.TryGetValue(dirEntry.ParentFileReferenceNumber, out parent)
+                    || journal.TryGetPathFromFileId(dirEntry.ParentFileReferenceNumber, out parent))
                 {
-                    var args = new UpdateRequest.Types.UpdateArgs()
+                    count++;
+                    parentDictionary.Add(dirEntry.FileReferenceNumber, Path.Combine(parent, dirEntry.Name));
+                    updateRequest.Args.Add(new UpdateRequest.Types.UpdateArgs()
                     {
                         DbIdx = db_index,
-                        Key = entry.FileReferenceNumber,
-                        Val = FuzzyUtil.PackValue(Path.Combine(volume + path, entry.Name), entry.IsFolder),
+                        Key = dirEntry.FileReferenceNumber,
+                        Val = FuzzyUtil.PackValue(Path.Combine(volume + parent, dirEntry.Name), true),
                         Deleted = false
-                    };
-                    updateRequest.Args.Add(args);
+                    });
                 }
             }
+            dirList.Clear();
+
+            foreach (var fileEntry in fileList)
+            {
+                string parent = string.Empty;
+                if (parentDictionary.TryGetValue(fileEntry.ParentFileReferenceNumber, out parent))
+                {
+                    count++;
+                    updateRequest.Args.Add(new UpdateRequest.Types.UpdateArgs()
+                    {
+                        DbIdx = db_index,
+                        Key = fileEntry.FileReferenceNumber,
+                        Val = FuzzyUtil.PackValue(Path.Combine(volume + parent, fileEntry.Name), false),
+                        Deleted = false
+                    });
+                }
+            }
+            parentDictionary.Clear();
+            fileList.Clear();
+
             _api.UpdateAsync(updateRequest);
+            return count;
         }
 
         private void FilterAndPushUsnEntry(UsnJournal journal, UsnEntry entry)
@@ -142,7 +177,7 @@ namespace Wox.UsnParser
 
             if (isCreate)
             {
-                if (TryGetPathFromFileId(journal, entry.ParentFileReferenceNumber, out var path))
+                if (journal.TryGetPathFromFileId(entry.ParentFileReferenceNumber, out var path))
                 {
                     var fullPath = Path.Combine(volume + path, entry.Name);
                     args.Val = FuzzyUtil.PackValue(fullPath, entry.IsFolder);
@@ -153,35 +188,15 @@ namespace Wox.UsnParser
                     return;
                 }
             }
-
             updateRequest.Args.Add(args);
-            _api.UpdateAsync(updateRequest);
-        }
-
-
-        private bool TryGetPathFromFileId(UsnJournal journal, ulong id, out string path)
-        {
-            path = string.Empty;
-
             try
             {
-                var key = $"{journal.VolumeName[0]}{id}";
-
-                if (PathDictionary.TryGetValue(key, out path))
-                    return true;
-
-                if (journal.TryGetPathFromFileId(id, out path))
-                {
-                    PathDictionary.Add(key, path);
-                    return true;
-                }
+                _api.Update(updateRequest);
             }
             catch (Exception ex)
             {
-                logger.Warn(ex, $"TryGetPathFromFileId failed. FileId is {id}.");
+                logger.Warn(ex, $"Update failed. file name is {entry.Name}");
             }
-
-            return false;
         }
     }
 }

@@ -58,24 +58,30 @@ namespace Wox.UsnParser.Native
 
         /// <summary>USN Record Constructor.</summary>
         /// <param name="ptrToUsnRecord">Buffer pointer to first byte of the USN Record</param>
-        public UsnEntry(IntPtr ptrToUsnRecord)
+        public UsnEntry(IntPtr ptrToUsnRecord, bool simple = false)
         {
             RecordLength = (uint)Marshal.ReadInt32(ptrToUsnRecord);
 
             FileReferenceNumber = (ulong)Marshal.ReadInt64(ptrToUsnRecord, FR_OFFSET);
             ParentFileReferenceNumber = (ulong)Marshal.ReadInt64(ptrToUsnRecord, PFR_OFFSET);
-            USN = Marshal.ReadInt64(ptrToUsnRecord, USN_OFFSET);
-            //TimeStamp = Marshal.ReadInt64(ptrToUsnRecord, TIMESTAMP_OFFSET);
-            Reason = (uint)Marshal.ReadInt32(ptrToUsnRecord, REASON_OFFSET);
-            //SourceInfo = (uint)Marshal.ReadInt32(ptrToUsnRecord, SOURCE_INFO_OFFSET);
-            //SecurityId = (uint)Marshal.ReadInt32(ptrToUsnRecord, SECURITY_ID_OFFSET);
 
-            //_fileAttributes = (uint)Marshal.ReadInt32(ptrToUsnRecord, FA_OFFSET);
+            if (simple)
+            {
+                USN = Marshal.ReadInt64(ptrToUsnRecord, USN_OFFSET);
+                //TimeStamp = Marshal.ReadInt64(ptrToUsnRecord, TIMESTAMP_OFFSET);
+                Reason = (uint)Marshal.ReadInt32(ptrToUsnRecord, REASON_OFFSET);
+                //SourceInfo = (uint)Marshal.ReadInt32(ptrToUsnRecord, SOURCE_INFO_OFFSET);
+                //SecurityId = (uint)Marshal.ReadInt32(ptrToUsnRecord, SECURITY_ID_OFFSET);
+            }
+
+            _fileAttributes = (uint)Marshal.ReadInt32(ptrToUsnRecord, FA_OFFSET);
 
             var fileNameLength = Marshal.ReadInt16(ptrToUsnRecord, FNL_OFFSET);
             var fileNameOffset = Marshal.ReadInt16(ptrToUsnRecord, FN_OFFSET);
 
             Name = Marshal.PtrToStringUni(new IntPtr(ptrToUsnRecord.ToInt64() + fileNameOffset), fileNameLength / sizeof(char));
+
+            
         }
 
         #region IComparable<UsnEntry> Members

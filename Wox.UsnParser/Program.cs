@@ -34,8 +34,7 @@ namespace Wox.UsnParser
                 server.Start();
 
                 logger.Info($"Usn Grpc service start.");
-
-                if (args?.Length > 1 && !ParserArgs(args))
+                if (args?.Length > 1 && ParserArgs(args))
                 {
                     return _mode switch
                     {
@@ -66,7 +65,7 @@ namespace Wox.UsnParser
 
         private static void InitLog()
         {
-            var CurrentLogDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Wox", "Logs", "UsnParser");
+            var CurrentLogDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Wox", "Logs");
             if (!Directory.Exists(CurrentLogDirectory))
             {
                 Directory.CreateDirectory(CurrentLogDirectory);
@@ -77,7 +76,7 @@ namespace Wox.UsnParser
             {
                 Header = "[Header]",
                 Footer = "[Footer]\n",
-                FileName = CurrentLogDirectory.Replace(@"\", "/") + "/${shortdate}.log",
+                FileName = CurrentLogDirectory.Replace(@"\", "/") + "/UsnParser-${shortdate}.log",
                 ArchiveAboveSize = 4 * 1024 * 1024,
                 Layout = "${longdate}|${level: uppercase = true}|${logger}\n${message}"
             };
@@ -91,9 +90,9 @@ namespace Wox.UsnParser
 
         private static int SearchMFT()
         {
-            var driveInfo = new DriveInfo(_volume);
-            using var journal = new UsnJournal(driveInfo);
-            var entries = UsnHelper.SearchMasterFileTable(journal);
+            var usnChannel = new Channel("127.0.0.1:38998", ChannelCredentials.Insecure);
+            var usn = new Usn.UsnClient(usnChannel);
+            usn.PushMasterFileTable(new Journal() { Volume = _volume });
 
             return 0;
         }
@@ -132,7 +131,7 @@ namespace Wox.UsnParser
             {
                 if (!args[i].StartsWith("-"))
                     continue;
-                var key = args[i].TrimStart('-').ToLower();
+                var key = args[i].ToLower();
 
                 switch (key)
                 {

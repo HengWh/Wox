@@ -101,12 +101,10 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
 
         public List<Result> Query(Query query)
         {
-            var stop = Stopwatch.StartNew();
-            Logger.Info($"Query start.");
             if (_cts != null && !_cts.IsCancellationRequested)
             {
                 _cts.Cancel();
-                Logger.WoxDebug($"cancel init {_cts.Token.GetHashCode()} {Thread.CurrentThread.ManagedThreadId} {query.RawQuery}");
+                Logger.Debug($"Cancel initialize {_cts.Token.GetHashCode()} {Thread.CurrentThread.ManagedThreadId} {query.RawQuery}");
                 _cts.Dispose();
             }
 
@@ -127,9 +125,10 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
                 var terms = query.Terms.Select(p => new SearchRequest.Types.QueryTerm() { Term = p, CaseSensitive = false });
                 request.Terms.AddRange(terms);
                 using var response = _api.Search(request, cancellationToken: token);
-
                 while (response.ResponseStream.MoveNext().Result)
                 {
+                    if (token.IsCancellationRequested)
+                        return results;
                     var serchResponse = response.ResponseStream.Current;
                     foreach (var item in serchResponse.Results)
                     {
@@ -142,16 +141,14 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
                         }
                         else
                         {
-                            if (DateTime.UtcNow - _queryFinishedTime > TimeSpan.FromSeconds(1))
+                            if (DateTime.UtcNow - _queryFinishedTime > TimeSpan.FromMilliseconds(500))
                             {
                                 var tmpResult = RankTopResult(minHeap.Clone(), token);
-                                Logger.Info($"Query span {stop.ElapsedMilliseconds}ms.");
                                 _queryFinishedTime = DateTime.UtcNow;
                                 ResultsUpdated?.Invoke(this, new ResultUpdatedEventArgs() { Query = query, Results = tmpResult });
                             }
                             if (_comparsion(minHeap.Peek(), item) < 0)
                             {
-
                                 minHeap.Pop();
                                 minHeap.Push(item);
                             }
@@ -163,16 +160,14 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
                 }
 
                 results = RankTopResult(minHeap, token);
-                Logger.Info($"Query span {stop.ElapsedMilliseconds}ms.");
                 _queryFinishedTime = DateTime.UtcNow;
                 _cts = null;
                 return results;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex);
+                Logger.Warn(ex);
             }
-
             return results;
         }
 

@@ -79,7 +79,7 @@ namespace Wox.UsnParser
             }
         }
 
-        public IEnumerable<UsnEntry> EnumerateUsnEntries(string keyword, FilterOption filterOption)
+        public IEnumerable<UsnEntry> EnumerateUsnEntries()
         {
             var usnState = QueryUsnJournal();
 
@@ -103,7 +103,6 @@ namespace Wox.UsnParser
             var pData = Marshal.AllocHGlobal(pDataSize);
             ZeroMemory(pData, pDataSize);
 
-
             // Gather up volume's directories.
             while (DeviceIoControl(
                 _usnJournalRootHandle,
@@ -120,32 +119,8 @@ namespace Wox.UsnParser
                 // While there is at least one entry in the USN journal.
                 while (outBytesReturned > 60)
                 {
-                    var usnEntry = new UsnEntry(pUsnRecord);
-
-                    switch (filterOption)
-                    {
-                        case FilterOption.OnlyFiles when usnEntry.IsFolder:
-                        case FilterOption.OnlyDirectories when !usnEntry.IsFolder:
-                            {
-                                pUsnRecord = new IntPtr(pUsnRecord.ToInt64() + usnEntry.RecordLength);
-                                outBytesReturned -= usnEntry.RecordLength;
-                                continue;
-                            }
-                    }
-
-                    if (string.IsNullOrWhiteSpace(keyword))
-                    {
-                        yield return usnEntry;
-                    }
-                    else
-                    {
-                        var options = new GlobOptions { Evaluation = { CaseInsensitive = true } };
-                        var glob = Glob.Parse(keyword, options);
-                        if (glob.IsMatch(usnEntry.Name))
-                        {
-                            yield return usnEntry;
-                        }
-                    }
+                    var usnEntry = new UsnEntry(pUsnRecord, true);
+                    yield return usnEntry;
 
                     pUsnRecord = new IntPtr(pUsnRecord.ToInt64() + usnEntry.RecordLength);
                     outBytesReturned -= usnEntry.RecordLength;

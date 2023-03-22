@@ -19,7 +19,7 @@ namespace Wox.Infrastructure.Logger
 
         static Log()
         {
-            CurrentLogDirectory = Path.Combine(DataLocation.DataDirectory(), DirectoryName, DateTime.Now.ToString("yyyyMMdd"));
+            CurrentLogDirectory = Path.Combine(DataLocation.DataDirectory(), DirectoryName);
             if (!Directory.Exists(CurrentLogDirectory))
             {
                 Directory.CreateDirectory(CurrentLogDirectory);
@@ -28,11 +28,11 @@ namespace Wox.Infrastructure.Logger
             var configuration = new LoggingConfiguration();
             var fileTarget = new FileTarget()
             {
-                FileName = CurrentLogDirectory.Replace(@"\", "/") + "/${shortdate}.txt",
+                FileName = CurrentLogDirectory.Replace(@"\", "/") + "/Wox-${shortdate}.log",
             };
             var consoleTarget = new NLog.Targets.ConsoleTarget();
 #if DEBUG
-            configuration.AddRule(LogLevel.Debug, LogLevel.Info, fileTarget);
+            configuration.AddRule(LogLevel.Info, LogLevel.Info, fileTarget);
 #else
             configuration.AddRule(LogLevel.Info, LogLevel.Fatal, fileTarget);
 #endif
