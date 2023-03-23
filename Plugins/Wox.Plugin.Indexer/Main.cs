@@ -164,7 +164,7 @@ namespace Wox.Plugin.Indexer
                     }
                     catch (Exception ex)
                     {
-                        Logger.WoxError("Something failed", ex);
+                        Logger.Error("Something failed", ex);
                     }
                 }
             }

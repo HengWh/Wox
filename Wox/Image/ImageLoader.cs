@@ -151,7 +151,7 @@ namespace Wox.Image
                 {
                     // can be extended to support guid things
                     ShellObject shell = ShellFile.FromParsingName(path);
-                    image = shell.Thumbnail.SmallBitmapSource;
+                    image = shell.Thumbnail.LargeBitmapSource;
                 }
                 catch (Exception e)
                 {
@@ -174,7 +174,8 @@ namespace Wox.Image
                     // https://github.com/aybe/Windows-API-Code-Pack-1.1/blob/master/source/WindowsAPICodePack/Shell/Common/ShellThumbnail.cs#L333
                     // https://github.com/aybe/Windows-API-Code-Pack-1.1/blob/master/source/WindowsAPICodePack/Shell/Common/DefaultShellImageSizes.cs#L46
                     // small is (32, 32)
-                    image = shell.Thumbnail.SmallBitmapSource;
+                    //image = shell.Thumbnail.SmallBitmapSource;
+                    image = shell.Thumbnail.LargeBitmapSource;
                     image.Freeze();
                     return image;
                 }
@@ -186,7 +187,7 @@ namespace Wox.Image
                         // so we try twice
                         // Error while extracting thumbnail for C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Steam\\Steam.lnk
                         ShellFile shellFile = ShellFile.FromFilePath(path);
-                        image = shellFile.Thumbnail.SmallBitmapSource;
+                        image = shellFile.Thumbnail.LargeBitmapSource;
                         image.Freeze();
                         return image;
                     }
@@ -255,7 +256,7 @@ namespace Wox.Image
                     e.Data.Add(nameof(pluginID), pluginID);
                     e.Data.Add(nameof(pluginDirectory), pluginDirectory);
                     e.Data.Add(nameof(p), p);
-                    Logger.WoxError($"cannot load image async <{p}>", e);
+                    Logger.Error($"cannot load image async <{p}>", e);
                     return GetErrorImage();
                 }
             }, updateImageCallback

@@ -107,17 +107,21 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
                 Logger.Debug($"Cancel initialize {_cts.Token.GetHashCode()} {Thread.CurrentThread.ManagedThreadId} {query.RawQuery}");
                 _cts.Dispose();
             }
-
+            
             var source = new CancellationTokenSource();
             _cts = source;
             var token = source.Token;
 
             List<Result> results = new List<Result>();
-            var minHeap = new MinHeap<SearchResult>(_comparsion);
+            if (string.IsNullOrEmpty(query.Search))
+            {
+                return results;
+            }
 
             try
             {
                 //Search
+                var minHeap = new MinHeap<SearchResult>(_comparsion);
                 SearchRequest request = new SearchRequest();
                 request.WithPos = true;
                 request.Flags = 3; //1-OnlyFiles  2-OnlyDirs  3-All
@@ -168,6 +172,7 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
             {
                 Logger.Warn(ex);
             }
+
             return results;
         }
 

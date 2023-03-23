@@ -73,7 +73,7 @@
                     </TextBox.Text>
                 </TextBox>
                 <TextBox x:Name="QueryTextBox"
-                    Style="{DynamicResource QueryBoxStyle}"
+                     Style="{DynamicResource QueryBoxStyle}"
                      Text="{Binding QueryText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                      PreviewDragOver="OnPreviewDragOver"
                      TextChanged="OnTextChanged"
@@ -98,15 +98,21 @@
                 <Grid Background="Transparent">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition/>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <wox:ResultListBox x:Name="WindowsIndexerResultListBox" DataContext="{Binding WindowsIndexResults}" PreviewMouseDown="OnPreviewMouseButtonDown" 
-                                       MaxHeight="600"/>
-                    <wox:ResultListBox x:Name="ResultListBox" DataContext="{Binding Results}" PreviewMouseDown="OnPreviewMouseButtonDown" 
-                                       MaxHeight="600" Grid.Column="1"/>
-                    <wox:ResultListBox x:Name="EverythingResultListBox" DataContext="{Binding EveryThingResults}" PreviewMouseDown="OnPreviewMouseButtonDown" 
-                                       MaxHeight="600" Grid.Column="2"/>
+                    <wox:ResultListBox x:Name="ResultListBox" DataContext="{Binding Results}" MaxHeight="600" Height="600"
+                                       VerticalAlignment="Stretch"
+                                       PreviewMouseDown="OnPreviewMouseButtonDown" 
+                                       SelectionChanged="ResultListBox_SelectionChanged"/>
+                    <Grid Grid.Column="1" Width="400" Visibility="{Binding ElementName=ResultListBox, Path=Visibility}" Height="600">
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Image Source="{Binding Results.SelectedItem.Image.Value}"/>
+                        <Rectangle Height="2" VerticalAlignment="Bottom" Fill="{Binding ElementName=QueryTextSuggestionBox, Path=Background}"/>
+                        <wox:ResultListBox Grid.Row="1" Visibility="{Binding ElementName=ResultListBox, Path=Visibility}" DataContext="{Binding SelectedContextMenu}"/>
+                    </Grid>
                 </Grid>
             </ContentControl>
             <ContentControl>

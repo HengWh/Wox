@@ -80,9 +80,8 @@ namespace Wox.ViewModel
             _topMostRecord = _topMostRecordStorage.Load();
 
             ContextMenu = new ResultsViewModel(_settings);
+            SelectedContextMenu = new ResultsViewModel(_settings);
             Results = new ResultsViewModel(_settings);
-            WindowsIndexResults = new ResultsViewModel(_settings);
-            EveryThingResults = new ResultsViewModel(_settings);
             History = new ResultsViewModel(_settings);
             _selectedResults = Results;
 
@@ -164,7 +163,6 @@ namespace Wox.ViewModel
             }
         }
 
-
         private void InitializeKeyCommands()
         {
             EscCommand = new RelayCommand(_ =>
@@ -220,7 +218,7 @@ namespace Wox.ViewModel
                 var result = results.SelectedItem?.Result;
                 if (result != null) // SelectedItem returns null if selection is empty.
                 {
-                    List<Result> TopResults= results.Results.Take(QueryFeedLog.TopN).Select(p => p.Result).ToList();
+                    List<Result> TopResults = results.Results.Take(QueryFeedLog.TopN).Select(p => p.Result).ToList();
                     LogQueryFeedBack(QueryText, TopResults, results.SelectedIndex, result.SubTitle);
 
                     bool hideWindow = result.Action != null && result.Action(new ActionContext
@@ -287,9 +285,8 @@ namespace Wox.ViewModel
         }
 
         public ResultsViewModel Results { get; private set; }
-        public ResultsViewModel WindowsIndexResults { get; private set; }
-        public ResultsViewModel EveryThingResults { get; private set; }
         public ResultsViewModel ContextMenu { get; private set; }
+        public ResultsViewModel SelectedContextMenu { get; private set; }
         public ResultsViewModel History { get; private set; }
 
         private string _queryText;
@@ -332,8 +329,6 @@ namespace Wox.ViewModel
                 else
                 {
                     Results.Visbility = Visibility.Collapsed;
-                    WindowsIndexResults.Visbility = Visibility.Collapsed;
-                    EveryThingResults.Visbility = Visibility.Collapsed;
                     _queryTextBeforeLeaveResults = QueryText;
 
 
@@ -418,6 +413,24 @@ namespace Wox.ViewModel
             }
         }
 
+        public void QuerySelectedContextMenu()
+        {
+            const string id = "Context Menu ID";
+            SelectedContextMenu.Clear();
+
+            var selected = Results.SelectedItem?.Result;
+
+            if (selected != null) // SelectedItem returns null if selection is empty.
+            {
+                var results = new List<Result>();
+                //var results = PluginManager.GetContextMenusForPlugin(selected);
+                //results.Add(ContextMenuTopMost(selected));
+                results.Add(ContextMenuPluginInfo(selected.PluginID));
+                SelectedContextMenu.AddResults(results, id);
+                SelectedContextMenu.SelectedIndex = -1;
+            }
+        }
+
         private void QueryHistory()
         {
             const string id = "Query History ID";
@@ -470,9 +483,6 @@ namespace Wox.ViewModel
                 Logger.WoxDebug($"cancel init {_updateSource.Token.GetHashCode()} {Thread.CurrentThread.ManagedThreadId} {QueryText}");
                 _updateSource.Dispose();
             }
-            var source = new CancellationTokenSource();
-            _updateSource = source;
-            var token = source.Token;
 
             ProgressBarVisibility = Visibility.Hidden;
 
@@ -481,7 +491,11 @@ namespace Wox.ViewModel
             {
                 if (!string.IsNullOrEmpty(queryText))
                 {
-                    if (token.IsCancellationRequested) { return; }
+                    Task.Delay(100).Wait();
+                    var source = new CancellationTokenSource();
+                    _updateSource = source;
+                    var token = source.Token;
+
                     var query = QueryBuilder.Build(queryText, PluginManager.NonGlobalPlugins);
                     _lastQuery = query;
                     if (query != null)
@@ -523,7 +537,7 @@ namespace Wox.ViewModel
 
                                 if (results.Any())
                                 {
-                                    LogQueryFeedBack(queryText,results);
+                                    LogQueryFeedBack(queryText, results);
                                 }
                                 if (token.IsCancellationRequested)
                                 {
@@ -565,13 +579,9 @@ namespace Wox.ViewModel
                 else
                 {
                     Results.Clear();
-                    WindowsIndexResults.Clear();
-                    EveryThingResults.Clear();
                     Results.Visbility = Visibility.Collapsed;
-                    WindowsIndexResults.Visbility = Visibility.Collapsed;
-                    EveryThingResults.Visbility = Visibility.Collapsed;
                 }
-            }, token).ContinueWith(ErrorReporting.UnhandledExceptionHandleTask, TaskContinuationOptions.OnlyOnFaulted);
+            }).ContinueWith(ErrorReporting.UnhandledExceptionHandleTask, TaskContinuationOptions.OnlyOnFaulted);
 
         }
 
@@ -642,9 +652,7 @@ namespace Wox.ViewModel
 
         private bool SelectedIsFromQueryResults()
         {
-            var selected = SelectedResults == Results ||
-                SelectedResults == WindowsIndexResults ||
-                SelectedResults == EveryThingResults;
+            var selected = SelectedResults == Results;
             return selected;
         }
 
@@ -846,31 +854,17 @@ namespace Wox.ViewModel
                         result.Score = result.Score;
                     }
                 }
+                if (update.Token.IsCancellationRequested) 
+                { 
+                    return; 
+                }
             }
 
-            var normalList = updates.Where(p => p.Metadata.ID != EverythingId && p.Metadata.ID != WindowsIndexerId).ToList();
-            if (normalList.Any())
-                Results.AddResults(normalList);
-
-            var everylist = updates.Where(p => p.Metadata.ID == EverythingId).ToList();
-            if (everylist.Any())
-                EveryThingResults.AddResults(everylist);
-
-            var indexerlist = updates.Where(p => p.Metadata.ID == WindowsIndexerId).ToList();
-            if (indexerlist.Any())
-                WindowsIndexResults.AddResults(indexerlist);
+            Results.AddResults(updates);
 
             if (Results.Visbility != Visibility.Visible && Results.Count > 0)
             {
                 Results.Visbility = Visibility.Visible;
-            }
-            if (EveryThingResults.Visbility != Visibility.Visible && EveryThingResults.Count > 0)
-            {
-                EveryThingResults.Visbility = Visibility.Visible;
-            }
-            if (WindowsIndexResults.Visbility != Visibility.Visible && WindowsIndexResults.Count > 0)
-            {
-                WindowsIndexResults.Visbility = Visibility.Visible;
             }
         }
 

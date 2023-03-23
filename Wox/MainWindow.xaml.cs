@@ -211,6 +211,14 @@ namespace Wox
             }
         }
 
+        private void ResultListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is ResultListBox)
+            {
+                _viewModel.QuerySelectedContextMenu();
+            }
+        }
+
 
         private void OnDrop(object sender, DragEventArgs e)
         {
@@ -327,7 +335,5 @@ namespace Wox
                 _viewModel.QueryTextCursorMovedToEnd = false;
             }
         }
-
-
     }
 }
