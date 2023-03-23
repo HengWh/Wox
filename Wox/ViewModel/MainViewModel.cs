@@ -146,7 +146,7 @@ namespace Wox.ViewModel
                 var plugin = (IResultUpdated)pair.Plugin;
                 plugin.ResultsUpdated += (s, e) =>
                 {
-                    if (!_updateSource.IsCancellationRequested)
+                    if (!_updateSource.IsCancellationRequested && e.Query.Search.Equals(QueryText))
                     {
                         CancellationToken token = _updateSource.Token;
                         // todo async update don't need count down
@@ -154,7 +154,7 @@ namespace Wox.ViewModel
                         CountdownEvent countdown = new CountdownEvent(1);
                         Task.Run(() =>
                         {
-                            if (token.IsCancellationRequested) { return; }
+                            if (token.IsCancellationRequested || !e.Query.Search.Equals(QueryText)) { return; }
                             PluginManager.UpdatePluginMetadata(e.Results, pair.Metadata, e.Query);
                             _resultsQueue.Add(new ResultsForUpdate(e.Results, pair.Metadata, e.Query, token, countdown));
                         }, token);
@@ -484,6 +484,9 @@ namespace Wox.ViewModel
                 _updateSource.Dispose();
             }
 
+            var source = new CancellationTokenSource();
+            _updateSource = source;
+            var token = source.Token;
             ProgressBarVisibility = Visibility.Hidden;
 
             var queryText = QueryText.Trim();
@@ -492,9 +495,7 @@ namespace Wox.ViewModel
                 if (!string.IsNullOrEmpty(queryText))
                 {
                     Task.Delay(100).Wait();
-                    var source = new CancellationTokenSource();
-                    _updateSource = source;
-                    var token = source.Token;
+                    if (token.IsCancellationRequested) return;
 
                     var query = QueryBuilder.Build(queryText, PluginManager.NonGlobalPlugins);
                     _lastQuery = query;
@@ -840,7 +841,7 @@ namespace Wox.ViewModel
                 Logger.WoxTrace($"{update.Metadata.Name}:{update.Query.RawQuery}");
                 foreach (var result in update.Results)
                 {
-                    if (update.Token.IsCancellationRequested) { return; }
+                    if (update.Token.IsCancellationRequested || !update.Query.Search.Equals(QueryText)) { return; }
                     if (_topMostRecord.IsTopMost(result))
                     {
                         result.Score = int.MaxValue;
@@ -853,10 +854,6 @@ namespace Wox.ViewModel
                     {
                         result.Score = result.Score;
                     }
-                }
-                if (update.Token.IsCancellationRequested) 
-                { 
-                    return; 
                 }
             }
 
