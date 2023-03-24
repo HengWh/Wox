@@ -1,4 +1,6 @@
-﻿namespace Wox.Plugin.NutstoreFuzzyFinder
+﻿using static Api.SearchResponse.Types;
+
+namespace Wox.Plugin.NutstoreFuzzyFinder
 {
     public class MinHeap<T>
     {
@@ -43,9 +45,9 @@
             return minHeap;
         }
 
-        public bool Contains(T item)
+        public bool Contains(T item, Comparison<T> comparison)
         {
-            return _heap.Any(p => _comparison(p, item) == 0);
+            return _heap.Any(p => comparison(p, item) == 0);
         }
 
         public int Count => _heap.Count;

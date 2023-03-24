@@ -95,12 +95,16 @@
     <Compile Include="Converters\MultilineTextConverter.cs" />
     <Compile Include="Converters\HighlightTextConverter.cs" />
     <Compile Include="Helper\DateTimeHelper.cs" />
+    <Compile Include="Helper\PreviewService.cs" />
     <Compile Include="Helper\QueryFeedLog.cs" />
     <Compile Include="Helper\SingletonWindowOpener.cs" />
     <Compile Include="Image\EmbededIcon.cs" />
     <Compile Include="Image\ImageCache.cs" />
     <Compile Include="Image\ImageLoader.cs" />
     <Compile Include="Models\QueryFeed.cs" />
+    <Compile Include="PreviewWindow.xaml.cs">
+      <DependentUpon>PreviewWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="PublicAPIInstance.cs" />
     <Compile Include="Converters\QuerySuggestionBoxConverter.cs" />
     <Compile Include="ReportWindow.xaml.cs" />
@@ -112,6 +116,7 @@
     <Compile Include="Storage\QueryHistory.cs" />
     <Compile Include="Storage\TopMostRecord.cs" />
     <Compile Include="Storage\UserSelectedRecord.cs" />
+    <Compile Include="ViewModel\PreviewViewModel.cs" />
     <Compile Include="ViewModel\RelayCommand.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\PluginViewModel.cs" />
@@ -367,6 +372,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="Msg.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PreviewWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

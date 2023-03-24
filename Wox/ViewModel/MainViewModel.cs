@@ -267,8 +267,16 @@ namespace Wox.ViewModel
                     SelectedResults = Results;
                 }
             });
-        }
 
+            PreviewCommand = new RelayCommand(_ =>
+            {
+                if (!SelectedIsFromQueryResults() || Results.SelectedItem == null) return;
+
+                var selected = Results.SelectedItem;
+
+                PreviewService.Instance.Preview(selected);
+            });
+        }
         #endregion
 
         #region ViewModel Properties
@@ -364,6 +372,7 @@ namespace Wox.ViewModel
         public ICommand LoadContextMenuCommand { get; set; }
         public ICommand LoadHistoryCommand { get; set; }
         public ICommand OpenResultCommand { get; set; }
+        public ICommand PreviewCommand { get; set; }
 
         #endregion
 
@@ -494,7 +503,6 @@ namespace Wox.ViewModel
             {
                 if (!string.IsNullOrEmpty(queryText))
                 {
-                    Task.Delay(100).Wait();
                     if (token.IsCancellationRequested) return;
 
                     var query = QueryBuilder.Build(queryText, PluginManager.NonGlobalPlugins);

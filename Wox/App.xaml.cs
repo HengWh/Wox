@@ -31,9 +31,7 @@ namespace Wox
         const string NUTSTORE_FZF_SERVER_EXE = "nutstore-fzf-server.exe";
         const string NUTSTORE_USN_PARSER_EXE = "Wox.UsnParser.exe";
         const string NUTSTORE_FZF_DIR = "FuzzyFinderSDK";
-        string NUTSTORE_FUZZY_PLUGIN_DIR = Path.Combine(Constant.ProgramDirectory, "Plugins", "Wox.Plugin.NutstoreFuzzyFinder");
         string _fzf = Path.Combine(Constant.ProgramDirectory, "Plugins", "Wox.Plugin.NutstoreFuzzyFinder", NUTSTORE_FZF_DIR, NUTSTORE_FZF_EXE);
-        string _fzfFeed = Path.Combine(Constant.ProgramDirectory, "Plugins", "Wox.Plugin.NutstoreFuzzyFinder", NUTSTORE_FZF_DIR, NUTSTORE_FZF_FEED_EXE);
         string _fzfServer = Path.Combine(Constant.ProgramDirectory, "Plugins", "Wox.Plugin.NutstoreFuzzyFinder", NUTSTORE_FZF_DIR, NUTSTORE_FZF_SERVER_EXE);
         string _usnPaerser = Path.Combine(Constant.ProgramDirectory, NUTSTORE_USN_PARSER_EXE);
 

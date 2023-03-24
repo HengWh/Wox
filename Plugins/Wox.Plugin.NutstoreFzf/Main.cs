@@ -24,6 +24,7 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
         private Usn.UsnClient _usn;
         private CancellationTokenSource _cts;
         private Comparison<SearchResult> _comparsion;
+        private Comparison<SearchResult> _comparsionKey;
         private DateTime _queryFinishedTime = DateTime.UtcNow;
 
         public event ResultUpdatedEventHandler ResultsUpdated;
@@ -65,16 +66,16 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
             _usn = new Usn.UsnClient(usnChannel);
             //TODO: grpc heath check, heart?  
 
+            _comparsionKey = new Comparison<SearchResult>((a, b) => a.Key == b.Key ? 0 : 1);
+
             _comparsion = new Comparison<SearchResult>((a, b) =>
             {
-                if (a.Key == b.Key)
-                    return 0;
+                if (a.DbIdx != b.DbIdx && (a.DbIdx < 1 || b.DbIdx < 1))
+                {
+                    return b.DbIdx - a.DbIdx;
+                }
 
-                if (a.DbIdx == 0 && b.DbIdx != 0)
-                    return 1;
-                else if (a.DbIdx != 0 && b.DbIdx == 0)
-                    return -1;
-                else if (a.Score != b.Score)
+                if (a.Score != b.Score)
                     return a.Score - b.Score;
 
                 var pathA = FuzzyUtil.UnpackValue(a.Val);
@@ -107,7 +108,7 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
                 Logger.Debug($"Cancel initialize {_cts.Token.GetHashCode()} {Thread.CurrentThread.ManagedThreadId} {query.RawQuery}");
                 _cts.Dispose();
             }
-            
+
             var source = new CancellationTokenSource();
             _cts = source;
             var token = source.Token;
@@ -138,6 +139,9 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
                     {
                         if (token.IsCancellationRequested)
                             break;
+
+                        if (minHeap.Contains(item, _comparsionKey))
+                            continue;
 
                         if (minHeap.Count < _settings.MaxSearchCount)
                         {
@@ -187,7 +191,7 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
 
                 var path = FuzzyUtil.UnpackValue(item.Val);
                 Result result = new Result();
-                result.Score = _settings.BaseScore + item.Score;
+                result.Score = _settings.BaseScore;
                 result.Title = Path.GetFileName(path);
                 result.SubTitle = path;
                 result.IcoPath = path;
@@ -271,8 +275,8 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
         {
             var request = new FeedbackRequest()
             {
-                IsDir = result.IsFolder,
-                FullPath = result.Title,
+                IsDir = Directory.Exists(result.SubTitle),
+                FullPath = result.SubTitle,
                 TimeMs = timeSpan
             };
             _api.Feedback(request);

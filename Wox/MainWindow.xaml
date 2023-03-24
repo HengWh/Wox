@@ -25,6 +25,7 @@
         LocationChanged="OnLocationChanged"
         Deactivated="OnDeactivated"
         PreviewKeyDown="OnKeyDown"
+        Width="1000" MaxWidth="1000"
         Visibility="{Binding MainWindowVisibility, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
         d:DataContext="{d:DesignInstance vm:MainViewModel}">
     <Window.Resources>
@@ -33,6 +34,7 @@
     <Window.InputBindings>
         <KeyBinding Key="Escape" Command="{Binding EscCommand}"></KeyBinding>
         <KeyBinding Key="F1" Command="{Binding StartHelpCommand}"></KeyBinding>
+        <KeyBinding Key="F2" Command="{Binding PreviewCommand}"></KeyBinding>
         <KeyBinding Key="F5" Command="{Binding RefreshCommand}"></KeyBinding>
         <KeyBinding Key="Tab" Command="{Binding SelectNextItemCommand}"></KeyBinding>
         <KeyBinding Key="Tab" Modifiers="Shift" Command="{Binding SelectPrevItemCommand}"></KeyBinding>
@@ -74,7 +76,7 @@
                 </TextBox>
                 <TextBox x:Name="QueryTextBox"
                      Style="{DynamicResource QueryBoxStyle}"
-                     Text="{Binding QueryText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     Text="{Binding QueryText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=100}"
                      PreviewDragOver="OnPreviewDragOver"
                      TextChanged="OnTextChanged"
                      AllowDrop="True"

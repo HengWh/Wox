@@ -251,7 +251,7 @@ namespace Wox
 
         private void OnDeactivated(object sender, EventArgs e)
         {
-            if (_settings.HideWhenDeactive)
+            if (_settings.HideWhenDeactive && !PreviewService.Instance.IsPreviewing)
             {
                 Hide();
             }

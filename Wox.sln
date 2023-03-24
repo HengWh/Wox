@@ -91,7 +91,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wox.Plugin.NutstoreFuzzyFin
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wox.UsnParser", "Wox.UsnParser\Wox.UsnParser.csproj", "{E626BB8B-8FFB-41E5-B14A-528714EA3456}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SearchTestClient", "SearchTestClient\SearchTestClient.csproj", "{2FC37DBD-1AAC-4CB2-8846-55221AC14150}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SearchTestClient", "SearchTestClient\SearchTestClient.csproj", "{2FC37DBD-1AAC-4CB2-8846-55221AC14150}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wox.Previewer", "Wox.Previewer\Wox.Previewer.csproj", "{30DC3F66-EF2A-4753-99DE-D6338287223D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -198,6 +200,10 @@ Global
 		{2FC37DBD-1AAC-4CB2-8846-55221AC14150}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2FC37DBD-1AAC-4CB2-8846-55221AC14150}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2FC37DBD-1AAC-4CB2-8846-55221AC14150}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30DC3F66-EF2A-4753-99DE-D6338287223D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30DC3F66-EF2A-4753-99DE-D6338287223D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30DC3F66-EF2A-4753-99DE-D6338287223D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30DC3F66-EF2A-4753-99DE-D6338287223D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
