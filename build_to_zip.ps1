@@ -83,7 +83,7 @@ function Pack-Zip ($path, $version, $output) {
 
     $input = "$path\Output\$config"
     Write-Host "Input path:  $input"
-    $file = "$output\Wox-$version.zip"
+    $file = "$output\WoxQuery-$version.zip"
     Write-Host "Filename: $file"
 
     if([System.IO.File]::Exists($file))

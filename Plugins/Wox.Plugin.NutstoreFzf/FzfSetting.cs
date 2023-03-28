@@ -4,7 +4,7 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
 {
     public class FzfSetting
     {
-        public int MaxSearchCount { get; set; } = 5;
+        public int MaxSearchCount { get; set; } = 60;
 
         public int BaseScore { get; set; } = 200;
 
