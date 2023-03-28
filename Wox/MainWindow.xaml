@@ -106,7 +106,7 @@
                                        VerticalAlignment="Stretch"
                                        PreviewMouseDown="OnPreviewMouseButtonDown" 
                                        SelectionChanged="ResultListBox_SelectionChanged"/>
-                    <Grid Grid.Column="1" Width="400" Visibility="{Binding ElementName=ResultListBox, Path=Visibility}" Height="600">
+                    <Grid Grid.Column="1" Width="436" Visibility="{Binding ElementName=ResultListBox, Path=Visibility}" Height="600">
                         <Grid.RowDefinitions>
                             <RowDefinition/>
                             <RowDefinition Height="Auto"/>

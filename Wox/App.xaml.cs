@@ -18,7 +18,6 @@ using Wox.Image;
 using Wox.Infrastructure.Logger;
 using Wox.Infrastructure.UserSettings;
 using Wox.ViewModel;
-using Stopwatch = Wox.Infrastructure.Stopwatch;
 using Wox.Infrastructure.Exception;
 using System.IO;
 
@@ -26,12 +25,9 @@ namespace Wox
 {
     public partial class App : IDisposable, ISingleInstanceApp
     {
-        const string NUTSTORE_FZF_EXE = "nutstore-fzf.exe";
-        const string NUTSTORE_FZF_FEED_EXE = "nutstore-fzf-feed.exe";
         const string NUTSTORE_FZF_SERVER_EXE = "nutstore-fzf-server.exe";
         const string NUTSTORE_USN_PARSER_EXE = "Wox.UsnParser.exe";
         const string NUTSTORE_FZF_DIR = "FuzzyFinderSDK";
-        string _fzf = Path.Combine(Constant.ProgramDirectory, "Plugins", "Wox.Plugin.NutstoreFuzzyFinder", NUTSTORE_FZF_DIR, NUTSTORE_FZF_EXE);
         string _fzfServer = Path.Combine(Constant.ProgramDirectory, "Plugins", "Wox.Plugin.NutstoreFuzzyFinder", NUTSTORE_FZF_DIR, NUTSTORE_FZF_SERVER_EXE);
         string _usnPaerser = Path.Combine(Constant.ProgramDirectory, NUTSTORE_USN_PARSER_EXE);
 
@@ -155,10 +151,9 @@ namespace Wox
 
         private void StartNutstoreFuzzyProcess()
         {
-            //start fzf.exe, fzf-server.exe, wox.usnparser.exe
+            //start fzf-server.exe, wox.usnparser.exe
 
             EnsureProcessStarted(_fzfServer);
-            EnsureProcessStarted(_fzf);
             EnsureProcessStarted(_usnPaerser, true);
         }
 
@@ -167,7 +162,6 @@ namespace Wox
             try
             {
                 KillProcess(_fzfServer);
-                KillProcess(_fzf);
                 KillProcess(_usnPaerser);
             }
             catch(Exception ex)

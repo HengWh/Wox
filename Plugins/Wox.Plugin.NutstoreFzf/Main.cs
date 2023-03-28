@@ -284,7 +284,7 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
 
         public void Save()
         {
-            foreach (var item in _settings.UsnStates)
+            foreach (var item in _settings?.UsnStates)
             {
                 var journal = new Journal() { Volume = item.Volume };
                 var journalData = _usn.GetJournalData(journal);

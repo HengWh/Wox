@@ -45,12 +45,15 @@ function Delete-Unused ($path, $config) {
         Remove-Item -Path $target\Plugins -Include $i -Recurse 
         Write-Host "Deleting duplicated $i"
     }
-    $included = Get-ChildItem $target -Filter "*.pdb"
-    foreach ($i in $included){
-        Remove-Item -Path $target\Plugins -Include $i -Recurse 
-        Write-Host "Deleting duplicated $i"
-    }
+    # $included = Get-ChildItem $target -Filter "*.pdb"
+    # foreach ($i in $included){
+    #     Remove-Item -Path $target\Plugins -Include $i -Recurse 
+    #     Write-Host "Deleting duplicated $i"
+    # }
+    Remove-Item -Path $target -Include "*.pdb" -Recurse 
     Remove-Item -Path $target -Include "JetBrains.Annotations.dll" -Recurse 
+    Remove-Item -Path $target -Include "libgrpc_csharp_ext.x64.dylib" -Recurse 
+    Remove-Item -Path $target -Include "libgrpc_csharp_ext.x64.so" -Recurse 
     Remove-Item -Path $target -Include "*.xml" -Recurse 
     Remove-Item -Path $target -Include "nunit.*" -Recurse 
     Remove-Item -Path $target -Include "NUnit3.*" -Recurse 
@@ -78,10 +81,15 @@ function Pack-Nuget-API ($path, $version, $output) {
 function Pack-Zip ($path, $version, $output) {
     Write-Host "Begin pack zip"
 
-    $input = "..\$path\Output\$config"
+    $input = "$path\Output\$config"
     Write-Host "Input path:  $input"
-    $file = "..\$output\Wox-$version.zip"
+    $file = "$output\Wox-$version.zip"
     Write-Host "Filename: $file"
+
+    if([System.IO.File]::Exists($file))
+    {
+        [System.IO.File]::Delete($file)
+    }
 
     [Reflection.Assembly]::LoadWithPartialName("System.IO.Compression.FileSystem")
     [System.IO.Compression.ZipFile]::CreateFromDirectory($input, $file)
@@ -133,9 +141,9 @@ function Main {
     Delete-Unused $p $config
     $o = "$p\Output\Packages"
     Validate-Directory $o
-    # making version static as multiple versions can exist in the nuget folder and in the case a breaking change is introduced.
-    New-Alias Nuget $env:USERPROFILE\.nuget\packages\NuGet.CommandLine\5.5.1\tools\NuGet.exe -Force
     Pack-Zip $p $v $o
+    # making version static as multiple versions can exist in the nuget folder and in the case a breaking change is introduced.
+    #New-Alias Nuget $env:USERPROFILE\.nuget\packages\NuGet.CommandLine\5.5.1\tools\NuGet.exe -Force
 
     #Pack-Squirrel-Installer $p $v $o
 

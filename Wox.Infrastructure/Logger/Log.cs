@@ -125,11 +125,11 @@ namespace Wox.Infrastructure.Logger
                 }
             }
 
-            SentrySdk.WithScope(scope =>
-            {
-                scope.Level = Sentry.Protocol.SentryLevel.Error;
-                SentrySdk.CaptureException(exception);
-            });
+            //SentrySdk.WithScope(scope =>
+            //{
+            //    scope.Level = Sentry.Protocol.SentryLevel.Error;
+            //    SentrySdk.CaptureException(exception);
+            //});
 #endif
         }
 
