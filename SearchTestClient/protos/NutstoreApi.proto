@@ -113,19 +113,3 @@ service ApiService {
   rpc Stat(StatRequest) returns (StatResponse);
   rpc Feedback(FeedbackRequest) returns (FeedbackResponse);
 }
-
-// EchoRequest is the request for echo.
-message EchoRequest {
-  string message = 1;
-}
-
-// EchoResponse is the response for echo.
-message EchoResponse {
-  string message = 1;
-}
-
-// Echo is the echo service.
-service EchoService {
-  rpc Echo(EchoRequest) returns (EchoResponse);
-  rpc StreamingEcho(EchoRequest) returns (stream EchoResponse);
-}

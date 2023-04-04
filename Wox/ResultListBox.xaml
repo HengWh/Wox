@@ -13,12 +13,12 @@
          HorizontalContentAlignment="Stretch" ItemsSource="{Binding Results}"
          Margin="{Binding Margin}"
          Visibility="{Binding Visbility}"
-         Style="{DynamicResource BaseListboxStyle}" Focusable="False"
+         Style="{DynamicResource BaseListboxStyle}"
          KeyboardNavigation.DirectionalNavigation="Cycle" SelectionMode="Single"
          VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Standard"
          SelectionChanged="OnSelectionChanged"
-         IsSynchronizedWithCurrentItem="True"
-         PreviewMouseDown="ListBox_PreviewMouseDown">
+         IsSynchronizedWithCurrentItem="True">
+    <!--PreviewMouseDown="ListBox_PreviewMouseDown"-->
     <!--IsSynchronizedWithCurrentItem: http://stackoverflow.com/a/7833798/2833083-->
     <ListBox.ItemTemplate>
         <DataTemplate>
@@ -87,8 +87,8 @@
     <!--http://stackoverflow.com/questions/16819577/setting-background-color-or-wpf-4-0-listbox-windows-8/#16820062-->
     <ListBox.ItemContainerStyle>
         <Style TargetType="{x:Type ListBoxItem}">
-            <EventSetter Event="MouseEnter" Handler="OnMouseEnter" />
-            <EventSetter Event="MouseMove" Handler="OnMouseMove" />
+            <!--<EventSetter Event="MouseEnter" Handler="OnMouseEnter" />-->
+            <!--<EventSetter Event="MouseMove" Handler="OnMouseMove" />-->
             <Setter Property="Height" Value="50" />
             <Setter Property="Margin" Value="0" />
             <Setter Property="Padding" Value="0" />
@@ -108,6 +108,9 @@
                                               SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
                         </Border>
                         <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.7" />
+                            </Trigger>
                             <Trigger Property="IsSelected" Value="True">
                                 <Setter TargetName="Bd" Property="Background"
                                         Value="{DynamicResource ItemSelectedBackgroundColor}" />

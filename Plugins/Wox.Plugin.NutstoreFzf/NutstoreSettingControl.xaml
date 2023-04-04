@@ -44,7 +44,7 @@
                                 <TextBox x:Name="tbDbInfo" BorderThickness="1" Background="Transparent" Margin="0 10" TextWrapping="Wrap" Foreground="Black" 
                                          Padding="3" HorizontalAlignment="Left"/>
                                 <DataGrid x:Name="dataGridDbInfo" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" 
-                                      MinHeight="100" HorizontalAlignment="Left" ColumnWidth="*"/>
+                                      MinHeight="100" HorizontalAlignment="Left" ColumnWidth="*" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
                             </StackPanel>
                         </Grid>
                     </Expander>

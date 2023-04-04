@@ -6,7 +6,7 @@ service Usn{
   rpc GetJournalData(Journal) returns (JournalData);
   rpc PushMasterFileTable(Journal) returns (google.protobuf.Empty);
   rpc PushUsnHistory(JournalData) returns (google.protobuf.Empty);
-  rpc MoonitorUsn(Journal) returns (google.protobuf.Empty);
+  rpc MonitorUsn(Journal) returns (google.protobuf.Empty);
   rpc CancelMoonitorUsn(Journal) returns (google.protobuf.Empty);
 }
 

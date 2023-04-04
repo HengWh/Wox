@@ -29,6 +29,7 @@ namespace Wox.Infrastructure.Logger
             var fileTarget = new FileTarget()
             {
                 FileName = CurrentLogDirectory.Replace(@"\", "/") + "/Wox-${shortdate}.log",
+                Encoding=System.Text.Encoding.UTF8
             };
             var consoleTarget = new NLog.Targets.ConsoleTarget();
 #if DEBUG

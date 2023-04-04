@@ -11,7 +11,8 @@
         WindowStartupLocation="CenterOwner"
         Style="{DynamicResource WindowStyle}"
         Icon="app.png"
-        SizeToContent="Width"
+        Width="800"
+        Height="600"
         d:DataContext="{d:DesignInstance vm:PreviewViewModel}"
         Visibility="{Binding MainWindowVisibility, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
     <Window.InputBindings>

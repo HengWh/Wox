@@ -74,6 +74,7 @@ namespace Wox.UsnParser
             var configuration = new LoggingConfiguration();
             var fileTarget = new FileTarget()
             {
+                Encoding = System.Text.Encoding.UTF8,
                 Header = "[Header]",
                 Footer = "[Footer]\n",
                 FileName = CurrentLogDirectory.Replace(@"\", "/") + "/UsnParser-${shortdate}.log",

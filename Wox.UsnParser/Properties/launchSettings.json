@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Wox.UsnParser": {
+      "commandName": "Project",
+      "commandLineArgs": "-search -volume e"
+    }
+  }
+}

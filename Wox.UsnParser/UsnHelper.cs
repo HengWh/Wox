@@ -16,7 +16,7 @@ namespace Wox.UsnParser
             {
                 if (token.IsCancellationRequested) return;
 
-                var usnEntries = journal.GetUsnJournalEntries(usnState, Win32Api.USN_REASON_MASK, "*", FilterOption.All, out usnState);
+                var usnEntries = journal.GetUsnJournalEntries(usnState, Win32Api.USN_REASON_MASK, null, FilterOption.All, out usnState);
                 foreach (var entry in usnEntries)
                 {
                     callback?.Invoke(entry);

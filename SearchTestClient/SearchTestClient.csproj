@@ -11,6 +11,7 @@
 
 	<ItemGroup>
 	  <None Remove="protos\NutstoreApi.proto" />
+	  <None Remove="protos\NutstoreEcho.proto" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -28,6 +29,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Protobuf Include="protos\NutstoreEcho.proto" />
 	  <Protobuf Include="protos\NutstoreApi.proto" />
 	</ItemGroup>
 

@@ -70,9 +70,9 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
 
             _comparsion = new Comparison<SearchResult>((a, b) =>
             {
-                if (a.DbIdx != b.DbIdx && (a.DbIdx < 1 || b.DbIdx < 1))
+                if (a.DbType != b.DbType && (a.DbType < DbType.Fs || b.DbType < DbType.Fs))
                 {
-                    return b.DbIdx - a.DbIdx;
+                    return b.DbType - a.DbType;
                 }
 
                 if (a.Score != b.Score)
@@ -96,6 +96,8 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
             //Push MFT and monitor USN
             foreach (var drive in DriveInfo.GetDrives())
             {
+                if (!drive.Name.StartsWith("E", StringComparison.OrdinalIgnoreCase))
+                    continue;
                 Task.Run(() => MonitorDiviceUsnJournal(drive));
             }
         }
@@ -122,6 +124,9 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
             try
             {
                 //Search
+                var stopwatch = Stopwatch.StartNew();
+                var startTime = DateTime.UtcNow;
+                Logger.Info($"Query start. Terms is {query.Search}");
                 var minHeap = new MinHeap<SearchResult>(_comparsion);
                 SearchRequest request = new SearchRequest();
                 request.WithPos = true;
@@ -129,9 +134,15 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
                 request.PrefixMask = "";
                 var terms = query.Terms.Select(p => new SearchRequest.Types.QueryTerm() { Term = p, CaseSensitive = false });
                 request.Terms.AddRange(terms);
+
                 using var response = _api.Search(request, cancellationToken: token);
+                Logger.Info($"Get fzf-server response. Time span is {stopwatch.ElapsedMilliseconds}ms.");
+                stopwatch.Restart();
                 while (response.ResponseStream.MoveNext().Result)
                 {
+                    Logger.Info($"Response stream move next. Time span is {stopwatch.ElapsedMilliseconds}ms.");
+                    stopwatch.Restart();
+
                     if (token.IsCancellationRequested)
                         return results;
                     var serchResponse = response.ResponseStream.Current;
@@ -151,6 +162,7 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
                         {
                             if (DateTime.UtcNow - _queryFinishedTime > TimeSpan.FromMilliseconds(500))
                             {
+                                Logger.Info($"ResultsUpdated UI. MinHeap count grater than {_settings.MaxSearchCount} and time span more than 500ms.");
                                 var tmpResult = RankTopResult(minHeap.Clone(), token);
                                 _queryFinishedTime = DateTime.UtcNow;
                                 ResultsUpdated?.Invoke(this, new ResultUpdatedEventArgs() { Query = query, Results = tmpResult });
@@ -163,6 +175,7 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
                         }
                     }
 
+                    Logger.Info($"Current results sort finish. Count is {serchResponse.Results.Count}. Time span is {stopwatch.ElapsedMilliseconds}ms.");
                     if (token.IsCancellationRequested)
                         return results;
                 }
@@ -170,6 +183,10 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
                 results = RankTopResult(minHeap, token);
                 _queryFinishedTime = DateTime.UtcNow;
                 _cts = null;
+
+                var endTime=DateTime.UtcNow;
+                Logger.Info($"Query end.. Terms is {query.Search}. Time span is {(endTime-startTime).TotalMilliseconds}ms");
+
                 return results;
             }
             catch (Exception ex)
@@ -198,12 +215,13 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
                 var titleIndex = path.LastIndexOf('\\') + 1;
                 result.TitleHighlightData = item.Pos.Select(p => (int)p - titleIndex).ToList();
                 result.SubTitleHighlightData = item.Pos.Select(p => (int)p).ToList();
+                result.ContextData = item.Key;
                 result.Action = c =>
                 {
                     bool hide;
                     try
                     {
-                        Feedback(result, Convert.ToUInt64((DateTime.UtcNow - _queryFinishedTime).TotalMilliseconds));
+                        Feedback(result, item.DbIdx, item.Key);
                         Process.Start(new ProcessStartInfo
                         {
                             FileName = path,
@@ -257,7 +275,7 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
                     NextUsn = deviceUsn.USN
                 });
 
-                _usn.MoonitorUsnAsync(journal);
+                _usn.MonitorUsnAsync(journal);
 
                 deviceUsn.USN = journalData.NextUsn;
 
@@ -271,15 +289,24 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
             }
         }
 
-        private void Feedback(Result result, ulong timeSpan = 0)
+        private void Feedback(Result result, uint dbIndex, ulong key)
         {
-            var request = new FeedbackRequest()
+            try
             {
-                IsDir = Directory.Exists(result.SubTitle),
-                FullPath = result.SubTitle,
-                TimeMs = timeSpan
-            };
-            _api.Feedback(request);
+                var request = new UpdateRequest();
+                request.Args.Add(new UpdateRequest.Types.UpdateArgs()
+                {
+                    DbIdx = dbIndex,
+                    DbType = DbType.History,
+                    Key = key,
+                    Val = FuzzyUtil.PackValue(result.SubTitle, Directory.Exists(result.SubTitle))
+                });
+                _api.Update(request);
+            }
+            catch (Exception ex)
+            {
+                Logger.Warn(ex);
+            }
         }
 
         public void Save()
@@ -297,7 +324,8 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
 
         public List<Result> LoadContextMenus(Result selectedResult)
         {
-            Feedback(selectedResult, Convert.ToUInt64((DateTime.UtcNow - _queryFinishedTime).TotalMilliseconds));
+            var dbIndex = FuzzyUtil.VolumeToDbIndex(Path.GetPathRoot(selectedResult.SubTitle));
+            Feedback(selectedResult, dbIndex, (ulong)selectedResult.ContextData);
             List<Result> contextMenus = new List<Result>();
             if (selectedResult == null) return contextMenus;
 

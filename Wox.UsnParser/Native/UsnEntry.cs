@@ -65,7 +65,7 @@ namespace Wox.UsnParser.Native
             FileReferenceNumber = (ulong)Marshal.ReadInt64(ptrToUsnRecord, FR_OFFSET);
             ParentFileReferenceNumber = (ulong)Marshal.ReadInt64(ptrToUsnRecord, PFR_OFFSET);
 
-            if (simple)
+            if (!simple)
             {
                 USN = Marshal.ReadInt64(ptrToUsnRecord, USN_OFFSET);
                 //TimeStamp = Marshal.ReadInt64(ptrToUsnRecord, TIMESTAMP_OFFSET);

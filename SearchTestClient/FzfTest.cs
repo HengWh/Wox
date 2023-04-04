@@ -1,26 +1,24 @@
 ﻿using Api;
+using Echo;
 using Google.Protobuf;
 using Grpc.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace SearchTestClient
 {
     public static class FzfTest
     {
         private static ApiService.ApiServiceClient _api;
-        private static EchoService.EchoServiceClient _eco;
+        private static Echo.Echo.EchoClient _eco;
         static FzfTest()
         {
             //GRPC client
             var apiChannel = new Channel("127.0.0.1:38999", ChannelCredentials.Insecure);
             _api = new ApiService.ApiServiceClient(apiChannel);
 
-            var ecoChannel = new Channel("127.0.0.1:38999", ChannelCredentials.Insecure);
-            _eco = new EchoService.EchoServiceClient(ecoChannel);
+            var ecoChannel = new Channel("127.0.0.1:8901", ChannelCredentials.Insecure);
+            _eco = new Echo.Echo.EchoClient(ecoChannel);
         }
 
         public static void UpdatePath(string path)
@@ -116,24 +114,31 @@ namespace SearchTestClient
         {
             try
             {
+                var stop = Stopwatch.StartNew();
+                Console.WriteLine("EchoStream start");
                 var cts = new CancellationTokenSource();
-                var response = _eco.StreamingEcho(new EchoRequest() { Message = "Hello Echo Stream" }, cancellationToken: cts.Token);
+                var response = _eco.StreamingEcho(new EchoRequest() { Message = "Hello Echo Stream" });
+                Console.WriteLine($"EchoStream get response. Time span is {stop.ElapsedMilliseconds}ms");
+                stop.Restart();
                 int i = 0;
                 while (response.ResponseStream.MoveNext().Result)
                 {
+                    Console.WriteLine($"EchoStream response stream move next. Time span is {stop.ElapsedMilliseconds}ms");
+                    stop.Restart();
                     i++;
                     var serchResponse = response.ResponseStream.Current;
-                    Console.WriteLine($"Receive Search Response:{serchResponse.Message}.");
+                    Console.WriteLine($"Receive Search Response:{serchResponse.Message}. Time span {stop.ElapsedMilliseconds}ms");
+                    stop.Restart();
                     if (i == 10)
                     {
                         Console.WriteLine($"Receive Search Response more than 10. We can cancel it.");
-                        cts.Cancel();
+                        break;
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Echo failed.\n{ex}");
+                Console.WriteLine($"Echo stream failed.\n{ex}");
             }
         }
 

@@ -4,21 +4,21 @@ using Wox.Proto;
 
 Console.WriteLine("Hello, World!");
 
-var path1 = @"C:\$Recycle.Bin\S-1-5-18\$RZJHIGY\测试-123";
-var path2 = @"D:\NutDemo\NutTest\新建文件夹\测试-123";
-var path3 = @"测";
-var path4 = @"D";
-var path5 = @"$";
+//var path1 = @"C:\$Recycle.Bin\S-1-5-18\$RZJHIGY\测试-123";
+//var path2 = @"D:\NutDemo\NutTest\新建文件夹\测试-123";
+//var path3 = @"测";
+//var path4 = @"D";
+//var path5 = @"$";
 
-var byte1= FuzzyUtil.PackValue(path1, false);
-var byte2= FuzzyUtil.PackValue(path2, false);
-var byte3= FuzzyUtil.PackValue(path3, false);
-var byte4= FuzzyUtil.PackValue(path4, false);
-var byte5= FuzzyUtil.PackValue(path5, false);
-Console.WriteLine($"byte1 length is {byte1.Length}, byte2 length is {byte2.Length}");
+//var byte1= FuzzyUtil.PackValue(path1, false);
+//var byte2= FuzzyUtil.PackValue(path2, false);
+//var byte3= FuzzyUtil.PackValue(path3, false);
+//var byte4= FuzzyUtil.PackValue(path4, false);
+//var byte5= FuzzyUtil.PackValue(path5, false);
+//Console.WriteLine($"byte1 length is {byte1.Length}, byte2 length is {byte2.Length}");
 
 
-return;
+//return;
 
 while (true)
 {

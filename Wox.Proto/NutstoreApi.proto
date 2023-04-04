@@ -37,15 +37,22 @@ message SearchRequest {
   uint32 flags = 4;
 }
 
+enum DbType {
+  HISTORY = 0;
+  WS = 1;
+  FS = 2;
+}
+
 message SearchResponse {
   message SearchResult {
     // Where the data set the matched result belongs to
-    int32 db_idx = 1;
-    uint64 key = 2;
-    bytes val = 3;
-    int32 score = 4;
+    uint32 db_idx = 1;
+    DbType db_type = 2;
+    uint64 key = 3;
+    bytes val = 4;
+    int32 score = 5;
     // uint32 for position index is sufficient
-    repeated uint32 pos = 5;
+    repeated uint32 pos = 6;
   }
   // The search results are not sorted
   repeated SearchResult results = 1;
@@ -54,9 +61,10 @@ message SearchResponse {
 message UpdateRequest {
   message UpdateArgs {
     uint32 db_idx = 1;
-    uint64 key = 2;
-    bytes val = 3;
-    bool deleted = 4; // If deleted=true, val should be empty. (i.e. delete by key)
+    DbType db_type = 2;
+    uint64 key = 3;
+    bytes val = 4;
+    bool deleted = 5; // If deleted=true, val should be empty. (i.e. delete by key)
   }
   repeated UpdateArgs args = 1;
 }
@@ -66,7 +74,8 @@ message UpdateResponse {
 }
 
 message PurgeRequest {
-  repeated uint32 db_idx = 1;
+  uint32 db_idx = 1;
+  repeated DbType db_type = 2;
 }
 
 message PurgeResponse {
@@ -90,8 +99,8 @@ message StatResponse {
   }
   // http://www.lmdb.tech/doc/group__mdb.html#structMDB__stat
   message Stat {
-    string db_name = 1;
-    int32 db_index = 2;
+    uint32 db_idx = 1;
+    DbType db_type = 2;
 
     uint32 page_size = 3;
     uint32 depth = 4;
@@ -104,21 +113,9 @@ message StatResponse {
   repeated Stat stats = 2;
 }
 
-message FeedbackRequest {
-  // When did the selection happen (time in milliseconds)
-  uint64 time_ms = 1;
-  bool is_dir = 2;
-  string full_path = 3;
-}
-
-message FeedbackResponse {
-  // Currently empty
-}
-
 service ApiService {
   rpc Search(SearchRequest) returns (stream SearchResponse); // Streaming search API
   rpc Update(UpdateRequest) returns (UpdateResponse);
   rpc Purge(PurgeRequest) returns (PurgeResponse);
   rpc Stat(StatRequest) returns (StatResponse);
-  rpc Feedback(FeedbackRequest) returns (FeedbackResponse);
 }

@@ -183,6 +183,12 @@ namespace Wox
         {
             try
             {
+#if DEBUG
+                var processList = Process.GetProcessesByName(Path.GetFileNameWithoutExtension(fileName));
+                if (processList.Length > 0)
+                    return true;
+#endif
+
                 KillProcess(fileName);
 
                 var process = new Process();

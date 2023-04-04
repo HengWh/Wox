@@ -34,7 +34,7 @@ namespace Wox.Proto
         /// Convert volume to db index.
         /// </summary>
         /// <param name="volume">Volume like "C" "D" "E"...... </param>
-        /// <returns>Db index of "C" is 1, "D" is 2, "E" is 3, and so on. </returns>
+        /// <returns>Db index of "C" is 0, "D" is 1, "E" is 2, and so on. </returns>
         public static uint VolumeToDbIndex(string volume)
         {
             //Volume is C...Z,
@@ -42,15 +42,7 @@ namespace Wox.Proto
             //Db index of C is 2
 
             int code = (int)volume.ToUpper()[0];
-            return (uint)Math.Max(1, code - 65);
+            return (uint)Math.Max(0, code - 67);
         }
-
-
-        public static string DbIndexToVolume(uint index)
-        {
-            char c = (char)(index + 65);
-            return c.ToString() + ":";
-        }
-
     }
 }

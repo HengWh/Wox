@@ -43,6 +43,7 @@ namespace Wox.UsnParser
         {
             try
             {
+                logger.Info($"PushMasterFileTable start, volume is {request.Volume}.");
                 var stopwatch = Stopwatch.StartNew();
                 var usnJournal = new UsnJournal(request.Volume);
                 var entries = UsnHelper.SearchMasterFileTable(usnJournal);
@@ -78,11 +79,18 @@ namespace Wox.UsnParser
             return Task.FromResult(new Empty());
         }
 
-        public override Task<Empty> MoonitorUsn(Journal request, ServerCallContext context)
+        public override Task<Empty> MonitorUsn(Journal request, ServerCallContext context)
         {
-            var usnJournal = new UsnJournal(request.Volume);
-            UsnHelper.MonitorRealTimeUsnJournal(entry => FilterAndPushUsnEntry(usnJournal, entry), usnJournal, _token);
-            logger.Info($"MoonitorUsn {request.Volume} is started.");
+            try
+            {
+                logger.Info($"MoonitorUsn {request.Volume} is started.");
+                var usnJournal = new UsnJournal(request.Volume);
+                UsnHelper.MonitorRealTimeUsnJournal(entry => FilterAndPushUsnEntry(usnJournal, entry), usnJournal, _token);
+            }
+            catch (Exception ex)
+            {
+                logger.Warn(ex, $"MoonitorUsn {request.Volume} failed.");
+            }
             return Task.FromResult(new Empty());
         }
 
@@ -119,14 +127,18 @@ namespace Wox.UsnParser
                     || journal.TryGetPathFromFileId(dirEntry.ParentFileReferenceNumber, out parent))
                 {
                     count++;
+                    if (!parentDictionary.ContainsKey(dirEntry.ParentFileReferenceNumber))
+                        parentDictionary.Add(dirEntry.ParentFileReferenceNumber, parent);
                     parentDictionary.Add(dirEntry.FileReferenceNumber, Path.Combine(parent, dirEntry.Name));
                     updateRequest.Args.Add(new UpdateRequest.Types.UpdateArgs()
                     {
                         DbIdx = db_index,
+                        DbType = DbType.Fs,
                         Key = dirEntry.FileReferenceNumber,
                         Val = FuzzyUtil.PackValue(Path.Combine(volume + parent, dirEntry.Name), true),
                         Deleted = false
                     });
+                    logger.Info($"Push folder entry. Path is {Path.Combine(volume + parent, dirEntry.Name)}, deleted is false.");
                 }
             }
             dirList.Clear();
@@ -140,16 +152,28 @@ namespace Wox.UsnParser
                     updateRequest.Args.Add(new UpdateRequest.Types.UpdateArgs()
                     {
                         DbIdx = db_index,
+                        DbType = DbType.Fs,
                         Key = fileEntry.FileReferenceNumber,
                         Val = FuzzyUtil.PackValue(Path.Combine(volume + parent, fileEntry.Name), false),
                         Deleted = false
                     });
+                    logger.Info($"Push file entry. Key is {fileEntry.FileReferenceNumber}, path is {Path.Combine(volume + parent, fileEntry.Name)}, deleted is false.");
                 }
             }
             parentDictionary.Clear();
             fileList.Clear();
 
-            _api.UpdateAsync(updateRequest);
+            Task.Run(() =>
+            {
+                try
+                {
+                    _api.UpdateAsync(updateRequest);
+                }
+                catch (Exception ex)
+                {
+                    logger.Warn(ex, "Update request error");
+                }
+            });
             return count;
         }
 
@@ -170,6 +194,7 @@ namespace Wox.UsnParser
             var args = new UpdateRequest.Types.UpdateArgs()
             {
                 DbIdx = FuzzyUtil.VolumeToDbIndex(journal.VolumeName),
+                DbType = DbType.Fs,
                 Key = entry.FileReferenceNumber,
                 Val = Google.Protobuf.ByteString.Empty,
                 Deleted = isDelete
@@ -188,10 +213,11 @@ namespace Wox.UsnParser
                     return;
                 }
             }
+            logger.Info($"Push file entry. Key is {args.Key}, path is {entry.Name}, deleted is {isDelete}.");
             updateRequest.Args.Add(args);
             try
             {
-                _api.Update(updateRequest);
+                _api.UpdateAsync(updateRequest);
             }
             catch (Exception ex)
             {

@@ -296,6 +296,7 @@ namespace Wox.ViewModel
         public ResultsViewModel ContextMenu { get; private set; }
         public ResultsViewModel SelectedContextMenu { get; private set; }
         public ResultsViewModel History { get; private set; }
+        public FrameworkElement PreviewContent { get; set; }
 
         private string _queryText;
         public string QueryText
@@ -437,6 +438,24 @@ namespace Wox.ViewModel
                 results.Add(ContextMenuPluginInfo(selected.PluginID));
                 SelectedContextMenu.AddResults(results, id);
                 SelectedContextMenu.SelectedIndex = -1;
+            }
+        }
+
+        public void PreviewSelectedResults()
+        {
+            var selected = Results.SelectedItem;
+
+            if (selected != null) // SelectedItem returns null if selection is empty.
+            {
+                PreviewContent = PreviewService.Instance.GetThumbnailImagel(selected);
+                App.Current.MainWindow.Dispatcher.BeginInvoke(async () =>
+                {
+                    var previewer = await PreviewService.Instance.GetPreviewer(selected);
+                    if (previewer != null)
+                    {
+                        PreviewContent = previewer;
+                    }
+                });
             }
         }
 

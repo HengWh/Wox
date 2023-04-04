@@ -104,14 +104,17 @@
                     </Grid.ColumnDefinitions>
                     <wox:ResultListBox x:Name="ResultListBox" DataContext="{Binding Results}" MaxHeight="600" Height="600"
                                        VerticalAlignment="Stretch"
-                                       PreviewMouseDown="OnPreviewMouseButtonDown" 
+                                       PreviewMouseDown="ResultOnPreviewMouseButtonDown" 
+                                       MouseDoubleClick="ResultListBox_MouseDoubleClick"
                                        SelectionChanged="ResultListBox_SelectionChanged"/>
                     <Grid Grid.Column="1" Width="436" Visibility="{Binding ElementName=ResultListBox, Path=Visibility}" Height="600">
                         <Grid.RowDefinitions>
                             <RowDefinition/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                        <Image Source="{Binding Results.SelectedItem.Image.Value}"/>
+                        <Grid>
+                            <ContentControl Content="{Binding PreviewContent}"/>
+                        </Grid>
                         <Rectangle Height="2" VerticalAlignment="Bottom" Fill="{Binding ElementName=QueryTextSuggestionBox, Path=Background}"/>
                         <wox:ResultListBox Grid.Row="1" Visibility="{Binding ElementName=ResultListBox, Path=Visibility}" DataContext="{Binding SelectedContextMenu}"/>
                     </Grid>

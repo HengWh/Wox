@@ -474,6 +474,10 @@
       <Project>{8451ECDD-2EA4-4966-BB0A-7BBC40138E80}</Project>
       <Name>Wox.Plugin</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Wox.Previewer\Wox.Previewer.csproj">
+      <Project>{30DC3F66-EF2A-4753-99DE-D6338287223D}</Project>
+      <Name>Wox.Previewer</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

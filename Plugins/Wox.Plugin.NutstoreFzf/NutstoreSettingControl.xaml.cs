@@ -38,7 +38,7 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
             var txt = JsonConvert.SerializeObject(response.EnvInfo);
             tbDbInfo.Text = txt;
 
-            dataGridDbInfo.ItemsSource = response.Stats.Take(10);
+            dataGridDbInfo.ItemsSource = response.Stats.Take(15);
         }
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
@@ -62,10 +62,16 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
         {
             try
             {
-                var purgeRequest = new PurgeRequest();
 
-                purgeRequest.DbIdx.AddRange(_setting.UsnStates.Select(p => FuzzyUtil.VolumeToDbIndex(p.Volume)));
-                _api.Purge(purgeRequest);
+                foreach (var index in _setting.UsnStates.Select(p => FuzzyUtil.VolumeToDbIndex(p.Volume)))
+                {
+                    var purgeRequest = new PurgeRequest();
+                    purgeRequest.DbIdx = index;
+                    purgeRequest.DbType.Add(DbType.History);
+                    purgeRequest.DbType.Add(DbType.Ws);
+                    purgeRequest.DbType.Add(DbType.Fs);
+                    _api.Purge(purgeRequest);
+                }
 
                 _setting.UsnStates.Clear();
                 datagridUSN.ItemsSource = null;
