@@ -11,7 +11,7 @@
 		<OutputPath>..\Output\$(Configuration)\</OutputPath>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<Platforms>AnyCPU;x64</Platforms>
-	
+		<UseWindowsForms>true</UseWindowsForms>
 	</PropertyGroup>
 
 	<ItemGroup>

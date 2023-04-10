@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using NLog;
 using NLog.Config;
 using NLog.Targets;
+using Wox.UsnParser.Native;
 
 namespace Wox.UsnParser
 {
@@ -20,6 +21,7 @@ namespace Wox.UsnParser
         private static string _volume;
         private static ulong _usnid;
 
+        [STAThread]
         private static int Main(string[]? args)
         {
             try
@@ -45,10 +47,7 @@ namespace Wox.UsnParser
                         _ => -1,
                     };
                 }
-
-                EventWaitHandle waitHandle = new AutoResetEvent(false);
-                waitHandle.WaitOne();
-
+                Application.Run();
             }
             catch (Exception ex)
             {
