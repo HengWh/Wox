@@ -138,7 +138,6 @@ namespace Wox.UsnParser
                         Val = FuzzyUtil.PackValue(Path.Combine(volume + parent, dirEntry.Name), true),
                         Deleted = false
                     });
-                    logger.Info($"Push folder entry. Path is {Path.Combine(volume + parent, dirEntry.Name)}, deleted is false.");
                 }
             }
             dirList.Clear();
@@ -157,7 +156,6 @@ namespace Wox.UsnParser
                         Val = FuzzyUtil.PackValue(Path.Combine(volume + parent, fileEntry.Name), false),
                         Deleted = false
                     });
-                    logger.Info($"Push file entry. Key is {fileEntry.FileReferenceNumber}, path is {Path.Combine(volume + parent, fileEntry.Name)}, deleted is false.");
                 }
             }
             parentDictionary.Clear();
@@ -213,7 +211,6 @@ namespace Wox.UsnParser
                     return;
                 }
             }
-            logger.Info($"Push file entry. Key is {args.Key}, path is {entry.Name}, deleted is {isDelete}.");
             updateRequest.Args.Add(args);
             try
             {

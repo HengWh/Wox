@@ -96,8 +96,6 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
             //Push MFT and monitor USN
             foreach (var drive in DriveInfo.GetDrives())
             {
-                if (!drive.Name.StartsWith("E", StringComparison.OrdinalIgnoreCase))
-                    continue;
                 Task.Run(() => MonitorDiviceUsnJournal(drive));
             }
         }
@@ -124,25 +122,18 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
             try
             {
                 //Search
-                var stopwatch = Stopwatch.StartNew();
                 var startTime = DateTime.UtcNow;
-                Logger.Info($"Query start. Terms is {query.Search}");
                 var minHeap = new MinHeap<SearchResult>(_comparsion);
                 SearchRequest request = new SearchRequest();
                 request.WithPos = true;
                 request.Flags = 3; //1-OnlyFiles  2-OnlyDirs  3-All
-                request.PrefixMask = "";
+                //request.PrefixMask = "";
                 var terms = query.Terms.Select(p => new SearchRequest.Types.QueryTerm() { Term = p, CaseSensitive = false });
                 request.Terms.AddRange(terms);
 
                 using var response = _api.Search(request, cancellationToken: token);
-                Logger.Info($"Get fzf-server response. Time span is {stopwatch.ElapsedMilliseconds}ms.");
-                stopwatch.Restart();
                 while (response.ResponseStream.MoveNext().Result)
                 {
-                    Logger.Info($"Response stream move next. Time span is {stopwatch.ElapsedMilliseconds}ms.");
-                    stopwatch.Restart();
-
                     if (token.IsCancellationRequested)
                         return results;
                     var serchResponse = response.ResponseStream.Current;
@@ -162,7 +153,6 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
                         {
                             if (DateTime.UtcNow - _queryFinishedTime > TimeSpan.FromMilliseconds(500))
                             {
-                                Logger.Info($"ResultsUpdated UI. MinHeap count grater than {_settings.MaxSearchCount} and time span more than 500ms.");
                                 var tmpResult = RankTopResult(minHeap.Clone(), token);
                                 _queryFinishedTime = DateTime.UtcNow;
                                 ResultsUpdated?.Invoke(this, new ResultUpdatedEventArgs() { Query = query, Results = tmpResult });
@@ -175,7 +165,6 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
                         }
                     }
 
-                    Logger.Info($"Current results sort finish. Count is {serchResponse.Results.Count}. Time span is {stopwatch.ElapsedMilliseconds}ms.");
                     if (token.IsCancellationRequested)
                         return results;
                 }

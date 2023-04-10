@@ -43,10 +43,13 @@ namespace SearchTestClient
             }
         }
 
-        public static void Search(string[] items)
+        public static void SearchStream(string[] items)
         {
             try
             {
+                var stop = Stopwatch.StartNew();
+                var startTime = DateTime.UtcNow;
+                Console.WriteLine("Search start");
                 //Search
                 SearchRequest request = new SearchRequest();
                 request.WithPos = true;
@@ -56,19 +59,26 @@ namespace SearchTestClient
                 request.Terms.AddRange(terms);
 
                 using var response = _api.Search(request);
-
+                Console.WriteLine($"Search get response. Time span is {stop.ElapsedMilliseconds}ms");
+                stop.Restart();
+                int i = 0;
                 while (response.ResponseStream.MoveNext().Result)
                 {
+                    Console.WriteLine($"SearchStream response stream move next. Time span is {stop.ElapsedMilliseconds}ms");
+                    stop.Restart();
                     var serchResponse = response.ResponseStream.Current;
                     foreach (var item in serchResponse.Results)
                     {
-                        Console.WriteLine($"Receive Search Response:Key={item.Key},Val={UnpackValue(item.Val)}.");
+                        i++;
                     }
                 }
+                Console.WriteLine($"Get SearchStream results count is {i}");
+                var endTime = DateTime.UtcNow;
+                Console.WriteLine($"SearchStream end. Time span is {(endTime - startTime).TotalMilliseconds}ms");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Search failed.\n{ex}");
+                Console.WriteLine($"SearchStream failed.\n{ex}");
             }
         }
 
@@ -76,6 +86,9 @@ namespace SearchTestClient
         {
             try
             {
+                var stop = Stopwatch.StartNew();
+                var startTime = DateTime.UtcNow;
+                Console.WriteLine("SearchSync start");
                 //Search
                 SearchRequest request = new SearchRequest();
                 request.WithPos = true;
@@ -85,10 +98,16 @@ namespace SearchTestClient
                 request.Terms.AddRange(terms);
 
                 var response = _api.SearchSync(request);
+                Console.WriteLine($"SearchSync get response. Time span is {stop.ElapsedMilliseconds}ms");
+                stop.Restart();
+                int i = 0;
                 foreach (var result in response.Results)
                 {
-                    Console.WriteLine($"Receive Search Response:Key={result.Key},Val={UnpackValue(result.Val)}.");
+                    i++;
                 }
+                Console.WriteLine($"Receive SearchSync results count is {i}");
+                var endTime = DateTime.UtcNow;
+                Console.WriteLine($"SearchSync end. Time span is {(endTime - startTime).TotalMilliseconds}ms");
             }
             catch (Exception ex)
             {
@@ -151,12 +170,11 @@ namespace SearchTestClient
             return ByteString.CopyFrom(bytes);
         }
 
-        private static (string path, bool isDir) UnpackValue(ByteString data)
+        private static string UnpackValue(ByteString data)
         {
             var bytes = data.ToByteArray();
-            var isDir = bytes[0] == 1;
-            var path = Encoding.UTF8.GetString(bytes[0..]);
-            return (path, isDir);
+            var path = Encoding.UTF8.GetString(bytes);
+            return path;
         }
     }
 }

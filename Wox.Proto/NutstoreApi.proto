@@ -20,14 +20,6 @@ message SearchRequest {
   }
 
   repeated QueryTerm terms = 1;
-  // Used to strip the given prefix for data in LMDB before matching
-  //  if a value in LMDB is not have the given prefix, it's considered as not a match
-  // This prefix can be used to narrow down to match a subset of the dataset in LMDB
-  //  if you want to match all data in LMDB, pass an empty string for this argument
-  //  in such case, all matched items will have the full data returned
-  // NOTE: if it is not empty, it should ends with os-specific path separator
-  //  e.g. /foo/bar/, D:\foo\bar\
-  string prefix_mask = 2;
   // Whether to include the matched positions in search response
   //  i.e. you can use the positions to do things like highlighting
   bool with_pos = 3;
@@ -114,8 +106,10 @@ message StatResponse {
 }
 
 service ApiService {
-  rpc Search(SearchRequest) returns (stream SearchResponse); // Streaming search API
+  rpc Search(SearchRequest) returns (stream SearchResponse);  // Streaming search API
   rpc Update(UpdateRequest) returns (UpdateResponse);
   rpc Purge(PurgeRequest) returns (PurgeResponse);
   rpc Stat(StatRequest) returns (StatResponse);
+
+  //rpc SearchSync(SearchRequest) returns (SearchResponse);     //  Debug only API
 }

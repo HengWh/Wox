@@ -6,7 +6,7 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
     {
         public int MaxSearchCount { get; set; } = 60;
 
-        public int BaseScore { get; set; } = 200;
+        public int BaseScore { get; set; } = 2000;
 
         public List<DeviceUsnState> UsnStates { get; set; } = new List<DeviceUsnState>();
 

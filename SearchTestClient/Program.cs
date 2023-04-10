@@ -36,7 +36,12 @@ while (true)
     else if (str.StartsWith("search"))
     {
         var path = str.Substring(6).TrimStart();
-        FzfTest.Search(path.Split(' '));
+        FzfTest.SearchSync(path.Split(' '));
+    }
+    else if (str.StartsWith("streamsearch"))
+    {
+        var path = str.Substring(12).TrimStart();
+        FzfTest.SearchStream(path.Split(' '));
     }
     else if (str.Equals("echo"))
     {

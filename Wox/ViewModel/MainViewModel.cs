@@ -551,7 +551,32 @@ namespace Wox.ViewModel
                         };
                         CountdownEvent countdown = new CountdownEvent(plugins.Count);
 
-                        foreach (var plugin in plugins)
+                        var fzfPlugin = plugins.FirstOrDefault(p=>p.Metadata.ID == NutstoreFuzzyId);
+                        if (fzfPlugin != null)
+                        {
+                            if (token.IsCancellationRequested)
+                            {
+                                Logger.WoxTrace($"canceled {token.GetHashCode()} {Thread.CurrentThread.ManagedThreadId}  {queryText} {fzfPlugin.Metadata.Name}");
+                                countdown.Signal();
+                                return;
+                            }
+                            var results = PluginManager.QueryForPlugin(fzfPlugin, query);
+
+                            if (results.Any())
+                            {
+                                LogQueryFeedBack(queryText, results);
+                            }
+                            if (token.IsCancellationRequested)
+                            {
+                                Logger.WoxTrace($"canceled {token.GetHashCode()} {Thread.CurrentThread.ManagedThreadId}  {queryText} {fzfPlugin.Metadata.Name}");
+                                countdown.Signal();
+                                return;
+                            }
+
+                            _resultsQueue.Add(new ResultsForUpdate(results, fzfPlugin.Metadata, query, token, countdown));
+                        }
+
+                        foreach (var plugin in plugins.Where(p => p.Metadata.ID != NutstoreFuzzyId))
                         {
                             Task.Run(() =>
                             {
