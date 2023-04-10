@@ -10,5 +10,6 @@
   "ExecuteFileName": "Wox.Plugin.Indexer.dll",
   "IcoPath": "Images\\indexer.light.png",
   "IcoPathDark": "Images\\indexer.dark.png",
-  "IcoPathLight": "Images\\indexer.light.png"
+  "IcoPathLight": "Images\\indexer.light.png",
+  "Disabled": true
 }
