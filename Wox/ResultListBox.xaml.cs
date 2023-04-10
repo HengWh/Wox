@@ -1,6 +1,7 @@
 ﻿using System.Runtime.Remoting.Contexts;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Forms;
 using System.Windows.Input;
 
 namespace Wox
@@ -23,19 +24,19 @@ namespace Wox
             }
         }
 
-        private void OnMouseEnter(object sender, MouseEventArgs e)
+        private void OnMouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
         {
             curItem = (ListBoxItem)sender;
             var p = e.GetPosition((IInputElement)sender);
             _lastpos = p;
         }
 
-        private void OnMouseMove(object sender, MouseEventArgs e)
+        private void OnMouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
             var p = e.GetPosition((IInputElement)sender);
             if (_lastpos != p)
             {
-                ((ListBoxItem) sender).IsSelected = true;
+                ((ListBoxItem)sender).IsSelected = true;
             }
         }
 

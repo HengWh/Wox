@@ -32,13 +32,13 @@ namespace Wox
         string _usnPaerser = Path.Combine(Constant.ProgramDirectory, NUTSTORE_USN_PARSER_EXE);
 
         public static PublicAPIInstance API { get; private set; }
-        private const string Unique = "Wox_Unique_Application_Mutex";
+        
         private static bool _disposed;
         private MainViewModel _mainVM;
         private SettingWindowViewModel _settingsVM;
         private readonly Portable _portable = new Portable();
         private StringMatcher _stringMatcher;
-        private static string _systemLanguage;
+        private string _systemLanguage;
 
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
@@ -61,30 +61,11 @@ namespace Wox
                 });
         }
 
-        [STAThread]
-        public static void Main()
-        {
-            _systemLanguage = CultureInfo.CurrentUICulture.Name;
-            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
-
-            //using (ErrorReporting.InitializedSentry(_systemLanguage))
-            //{
-            if (SingleInstance<App>.InitializeAsFirstInstance(Unique))
-            {
-                using (var application = new App())
-                {
-                    application.InitializeComponent();
-                    application.Run();
-                }
-            }
-            //}
-        }
-
         private void OnStartup(object sender, StartupEventArgs e)
         {
             Logger.StopWatchNormal("Startup cost", () =>
             {
+                _systemLanguage = CultureInfo.CurrentUICulture.Name;
                 RegisterAppDomainExceptions();
                 RegisterDispatcherUnhandledException();
 

@@ -1,24 +1,19 @@
 ﻿using QuickLook.Plugin.ImageViewer;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using Wox.Previewer.OfficePreview;
+using Wox.Previewer.WindowsPreview;
 
 namespace Wox.Previewer
 {
     public static class PreviewServer
     {
         private static ImagePlugin _imagePlugin;
-        private static OfficePlugin _officePlugin;
+        private static WindowsPlugin _officePlugin;
         public static void Initializer()
         {
             _imagePlugin = new ImagePlugin();
             _imagePlugin.Init();
 
-            _officePlugin = new OfficePlugin();
+            _officePlugin = new WindowsPlugin();
 
         }
 

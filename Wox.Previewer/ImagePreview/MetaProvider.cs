@@ -77,18 +77,16 @@ namespace QuickLook.Plugin.ImageViewer
 
     internal static class NativeMethods
     {
-        private static readonly bool Is64 = Environment.Is64BitProcess;
-
         public static byte[] GetThumbnail(string file)
         {
             try
             {
-                var len = Is64 ? GetThumbnail_64(file, null) : GetThumbnail_32(file, null);
+                var len = GetThumbnail_64(file, null);
                 if (len <= 0)
                     return null;
 
                 var buffer = new byte[len];
-                var _ = Is64 ? GetThumbnail_64(file, buffer) : GetThumbnail_32(file, buffer);
+                var _ = GetThumbnail_64(file, buffer);
 
                 return buffer;
             }
@@ -103,7 +101,7 @@ namespace QuickLook.Plugin.ImageViewer
         {
             try
             {
-                return Is64 ? GetOrientation_64(file) : GetOrientation_32(file);
+                return GetOrientation_64(file);
             }
             catch (Exception e)
             {
@@ -111,13 +109,6 @@ namespace QuickLook.Plugin.ImageViewer
                 return 0;
             }
         }
-
-        [DllImport("exiv2-ql-32.dll", EntryPoint = "GetThumbnail", CallingConvention = CallingConvention.Cdecl)]
-        private static extern int GetThumbnail_32([MarshalAs(UnmanagedType.LPWStr)] string file,
-            [MarshalAs(UnmanagedType.LPArray)] byte[] buffer);
-
-        [DllImport("exiv2-ql-32.dll", EntryPoint = "GetOrientation", CallingConvention = CallingConvention.Cdecl)]
-        private static extern int GetOrientation_32([MarshalAs(UnmanagedType.LPWStr)] string file);
 
         [DllImport("exiv2-ql-64.dll", EntryPoint = "GetThumbnail", CallingConvention = CallingConvention.Cdecl)]
         private static extern int GetThumbnail_64([MarshalAs(UnmanagedType.LPWStr)] string file,

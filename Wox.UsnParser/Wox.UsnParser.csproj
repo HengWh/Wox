@@ -10,6 +10,7 @@
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 		<OutputPath>..\Output\$(Configuration)\</OutputPath>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<Platforms>AnyCPU;x64</Platforms>
 	
 	</PropertyGroup>
 

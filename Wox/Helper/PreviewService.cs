@@ -6,7 +6,6 @@ using System.Windows;
 using System.Windows.Media;
 using Wox.Previewer;
 using Wox.ViewModel;
-
 namespace Wox.Helper
 {
     public class PreviewService
@@ -15,7 +14,6 @@ namespace Wox.Helper
         private PreviewViewModel _viewModel;
         private CancellationTokenSource _cts;
         private static Lazy<PreviewService> _instance = new Lazy<PreviewService>(() => new PreviewService());
-
         public static PreviewService Instance => _instance.Value;
         public bool IsPreviewing { get; set; }
 
@@ -80,27 +78,13 @@ namespace Wox.Helper
         {
             if (model == null || model.Result == null)
                 return null;
-
-            if (_cts != null && _cts.IsCancellationRequested)
-            {
-                _cts.Cancel();
-                _cts.Dispose();
-            }
-
-            _cts = new CancellationTokenSource();
-            var token = _cts.Token;
-            await Task.Delay(500);
-            if (token.IsCancellationRequested)
-                return null;
             var filePath = model.Result.SubTitle;
             if (!File.Exists(filePath))
                 return null;
+            IsPreviewing = true;
             var element = PreviewServer.Preview(filePath);
-
-            if (token.IsCancellationRequested)
-                return null;
-            else
-                return element;
+            IsPreviewing = false;
+            return element;
         }
 
         public void Preview(ResultViewModel model)

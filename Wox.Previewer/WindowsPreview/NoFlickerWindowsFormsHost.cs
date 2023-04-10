@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Forms.Integration;
 
-namespace Wox.Previewer.OfficePreview
+namespace Wox.Previewer.WindowsPreview
 {
     public class NoFlickerWindowsFormsHost : WindowsFormsHost
     {

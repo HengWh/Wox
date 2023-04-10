@@ -8,11 +8,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Collections.Concurrent;
-
 using NHotkey;
 using NHotkey.Wpf;
 using NLog;
-
 using Wox.Core.Plugin;
 using Wox.Core.Resource;
 using Wox.Helper;
@@ -26,6 +24,7 @@ using Wox.Storage;
 using System.Text;
 using Wox.Models;
 using Newtonsoft.Json;
+using Timer = System.Windows.Forms.Timer;
 
 namespace Wox.ViewModel
 {
@@ -38,7 +37,6 @@ namespace Wox.ViewModel
         const string ProgramId = "791FC278BA414111B8D1886DFE447410";
         const string NutstoreFuzzyId = "7031BC4171534C30834852C1C63ED3D4";
 
-        private Query _lastQuery;
         private string _queryTextBeforeLeaveResults;
 
         private readonly WoxJsonStorage<History> _historyItemsStorage;
@@ -54,6 +52,7 @@ namespace Wox.ViewModel
         private bool _saved;
 
         private readonly Internationalization _translator;
+        private readonly Timer _debounceTimer = new Timer();
 
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
@@ -64,10 +63,10 @@ namespace Wox.ViewModel
 
         public MainViewModel(bool useUI = true)
         {
+            DebouncePreview();
             _saved = false;
             _queryTextBeforeLeaveResults = "";
             _queryText = "";
-            _lastQuery = new Query();
             QueryFeedStartTime = DateTime.UtcNow;
 
             _settings = Settings.Instance;
@@ -441,21 +440,43 @@ namespace Wox.ViewModel
             }
         }
 
+
+        private void DebouncePreview()
+        {
+            _debounceTimer.Interval = 500;
+            _debounceTimer.Tick += (sender, e) =>
+            {
+                var selected = Results.SelectedItem;
+                if (selected != null)
+                {
+                    App.Current.MainWindow.Dispatcher.BeginInvoke(async () =>
+                    {
+                        try
+                        {
+                            var previewer = await PreviewService.Instance.GetPreviewer(selected);
+                            if (previewer != null && Results.SelectedItem == selected)
+                            {
+                                PreviewContent = previewer;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Warn(ex);
+                        }
+                    });
+                }
+                _debounceTimer.Stop();
+            };
+        }
+
         public void PreviewSelectedResults()
         {
             var selected = Results.SelectedItem;
-
             if (selected != null) // SelectedItem returns null if selection is empty.
             {
                 PreviewContent = PreviewService.Instance.GetThumbnailImagel(selected);
-                App.Current.MainWindow.Dispatcher.BeginInvoke(async () =>
-                {
-                    var previewer = await PreviewService.Instance.GetPreviewer(selected);
-                    if (previewer != null)
-                    {
-                        PreviewContent = previewer;
-                    }
-                });
+                _debounceTimer.Stop();
+                _debounceTimer.Start();
             }
         }
 
@@ -525,7 +546,6 @@ namespace Wox.ViewModel
                     if (token.IsCancellationRequested) return;
 
                     var query = QueryBuilder.Build(queryText, PluginManager.NonGlobalPlugins);
-                    _lastQuery = query;
                     if (query != null)
                     {
                         // handle the exclusiveness of plugin using action keyword
@@ -551,7 +571,7 @@ namespace Wox.ViewModel
                         };
                         CountdownEvent countdown = new CountdownEvent(plugins.Count);
 
-                        var fzfPlugin = plugins.FirstOrDefault(p=>p.Metadata.ID == NutstoreFuzzyId);
+                        var fzfPlugin = plugins.FirstOrDefault(p => p.Metadata.ID == NutstoreFuzzyId);
                         if (fzfPlugin != null)
                         {
                             if (token.IsCancellationRequested)

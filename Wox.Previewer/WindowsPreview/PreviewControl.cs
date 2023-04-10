@@ -1,4 +1,4 @@
-﻿namespace Wox.Previewer.OfficePreview
+﻿namespace Wox.Previewer.WindowsPreview
 {
     public class PreviewControl : Control
     {

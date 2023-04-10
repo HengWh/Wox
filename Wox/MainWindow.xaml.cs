@@ -231,17 +231,17 @@ namespace Wox
 
         private void ResultListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (sender != null && e.OriginalSource != null)
-            {
-                var r = (ResultListBox)sender;
-                var d = (DependencyObject)e.OriginalSource;
-                var item = ItemsControl.ContainerFromElement(r, d) as ListBoxItem;
-                var result = (ResultViewModel)item?.DataContext;
-                if (result != null && e.ChangedButton == MouseButton.Left)
-                {
-                    _viewModel.OpenResultCommand.Execute(null);
-                }
-            }
+            //if (sender != null && e.OriginalSource != null)
+            //{
+            //    var r = (ResultListBox)sender;
+            //    var d = (DependencyObject)e.OriginalSource;
+            //    var item = ItemsControl.ContainerFromElement(r, d) as ListBoxItem;
+            //    var result = (ResultViewModel)item?.DataContext;
+            //    if (result != null && e.ChangedButton == MouseButton.Left)
+            //    {
+            //        _viewModel.OpenResultCommand.Execute(null);
+            //    }
+            //}
         }
 
         private void ResultListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

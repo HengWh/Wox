@@ -1,6 +1,6 @@
 ﻿using UserControl = System.Windows.Controls.UserControl;
 
-namespace Wox.Previewer.OfficePreview
+namespace Wox.Previewer.WindowsPreview
 {
     /// <summary>
     /// Interaction logic for ExplorerPreview.xaml

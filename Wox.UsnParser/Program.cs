@@ -82,7 +82,7 @@ namespace Wox.UsnParser
                 Layout = "${longdate}|${level: uppercase = true}|${logger}\n${message}"
             };
 #if DEBUG
-            configuration.AddRule(LogLevel.Debug, LogLevel.Info, fileTarget);
+            configuration.AddRule(LogLevel.Debug, LogLevel.Fatal, fileTarget);
 #else
             configuration.AddRule(LogLevel.Info, LogLevel.Fatal, fileTarget);
 #endif

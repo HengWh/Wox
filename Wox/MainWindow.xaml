@@ -17,7 +17,7 @@
         ShowInTaskbar="False"
         Style="{DynamicResource WindowStyle}"
         Icon="app.png"
-        AllowsTransparency="True"
+        AllowsTransparency="False"
         Loaded="OnLoaded"
         Initialized="OnInitialized"
         Closing="OnClosing"
@@ -104,8 +104,7 @@
                     </Grid.ColumnDefinitions>
                     <wox:ResultListBox x:Name="ResultListBox" DataContext="{Binding Results}" MaxHeight="600" Height="600"
                                        VerticalAlignment="Stretch"
-                                       PreviewMouseDown="ResultOnPreviewMouseButtonDown" 
-                                       MouseDoubleClick="ResultListBox_MouseDoubleClick"
+                                       PreviewMouseDown="OnPreviewMouseButtonDown" 
                                        SelectionChanged="ResultListBox_SelectionChanged"/>
                     <Grid Grid.Column="1" Width="436" Visibility="{Binding ElementName=ResultListBox, Path=Visibility}" Height="600">
                         <Grid.RowDefinitions>

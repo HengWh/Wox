@@ -7,7 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Forms.Integration;
 using Wox.Plugin;
 
-namespace Wox.Previewer.OfficePreview
+namespace Wox.Previewer.WindowsPreview
 {
     public class ExplorerPreviewViewModel : BaseModel
     {
@@ -35,10 +35,10 @@ namespace Wox.Previewer.OfficePreview
             WindowHost = new NoFlickerWindowsFormsHost();
         }
 
-        public void LoadFile(string filePath)
+        public bool LoadFile(string filePath)
         {
             if (string.IsNullOrEmpty(filePath))
-                return;
+                return false;
             UnloadPreviewHandler();
 
             // try to get GUID for the preview handler
@@ -56,7 +56,6 @@ namespace Wox.Previewer.OfficePreview
                     // use reflection to instantiate the preview handler type
                     Type comType = Type.GetTypeFromCLSID(mCurrentPreviewHandlerGUID);
                     mCurrentPreviewHandler = Activator.CreateInstance(comType);
-
 
                     if (mCurrentPreviewHandler is IInitializeWithFile initializeWithFile)
                     {
@@ -91,6 +90,7 @@ namespace Wox.Previewer.OfficePreview
                         {
                             errorMessage = "Preview could not be generated.\n" + result;
                         }
+                        return true;
                     }
                 }
                 catch (Exception ex)
@@ -103,6 +103,7 @@ namespace Wox.Previewer.OfficePreview
                 errorMessage = "No preview available.";
             }
             Debug.WriteLine(errorMessage);
+            return false;
         }
 
         public void Unload()

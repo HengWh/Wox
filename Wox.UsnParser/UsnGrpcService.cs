@@ -129,7 +129,8 @@ namespace Wox.UsnParser
                     count++;
                     if (!parentDictionary.ContainsKey(dirEntry.ParentFileReferenceNumber))
                         parentDictionary.Add(dirEntry.ParentFileReferenceNumber, parent);
-                    parentDictionary.Add(dirEntry.FileReferenceNumber, Path.Combine(parent, dirEntry.Name));
+                    if (!parentDictionary.ContainsKey(dirEntry.FileReferenceNumber))
+                        parentDictionary.Add(dirEntry.FileReferenceNumber, Path.Combine(parent, dirEntry.Name));
                     updateRequest.Args.Add(new UpdateRequest.Types.UpdateArgs()
                     {
                         DbIdx = db_index,
