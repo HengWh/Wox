@@ -1,14 +1,14 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-#if DEBUG
+//#if DEBUG
 
-[assembly: AssemblyConfiguration("Debug")]
-[assembly: AssemblyDescription("Debug build, https://github.com/Wox-launcher/Wox")]
-#else
-[assembly: AssemblyConfiguration("Release")]
-[assembly: AssemblyDescription("Release build, https://github.com/Wox-launcher/Wox")]
-#endif
+//[assembly: AssemblyConfiguration("Debug")]
+//[assembly: AssemblyDescription("Debug build, https://github.com/Wox-launcher/Wox")]
+//#else
+//[assembly: AssemblyConfiguration("Release")]
+//[assembly: AssemblyDescription("Release build, https://github.com/Wox-launcher/Wox")]
+//#endif
 
 [assembly: AssemblyCompany("WoxQuery")]
 [assembly: AssemblyProduct("WoxQuery")]

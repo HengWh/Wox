@@ -140,8 +140,6 @@ namespace Wox.Plugin.Everything
             return r;
         }
 
-
-
         private List<ContextMenu> GetDefaultContextMenu()
         {
             List<ContextMenu> defaultContextMenus = new List<ContextMenu>();

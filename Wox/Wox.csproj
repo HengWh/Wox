@@ -18,6 +18,7 @@
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 		<StartupObject>Wox.StartUp</StartupObject>
 		<PlatformTarget>x64</PlatformTarget>
+		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
 	</PropertyGroup>
 	<ItemGroup>
 		<Reference Include="ReachFramework" />
@@ -40,12 +41,12 @@
 	</ItemGroup>
 	<ItemGroup>
 		<Content Include="Themes\*.xaml">
-			<Generator>MSBuild:Compile</Generator>
+			<Generator>XamlIntelliSenseFileGenerator</Generator>
 			<SubType>Designer</SubType>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 		<Content Include="Languages\*.xaml">
-			<Generator>MSBuild:Compile</Generator>
+			<Generator>XamlIntelliSenseFileGenerator</Generator>
 			<SubType>Designer</SubType>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
@@ -56,6 +57,12 @@
 		<EmbeddedResource Remove="Themes\ThemeBuilder\**" />
 		<None Remove="Themes\ThemeBuilder\**" />
 		<Page Remove="Themes\ThemeBuilder\**" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Compile Remove="Properties\Settings.Designer.cs" />
+	</ItemGroup>
+	<ItemGroup>
+	  <None Remove="Properties\Settings.settings" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Wox.Core\Wox.Core.csproj" />
@@ -88,4 +95,7 @@
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
 	</ItemGroup>
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+	  <Exec Command="del /q /f &quot;$(SolutionDir)output\$(ConfigurationName)\ActionWox.exe&quot;&#xD;&#xA;mklink &quot;$(SolutionDir)output\$(ConfigurationName)\ActionWox.exe&quot; &quot;$(SolutionDir)output\$(ConfigurationName)\Wox.exe&quot;" />
+	</Target>
 </Project>

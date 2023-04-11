@@ -63,6 +63,7 @@ namespace Wox
 
         private void OnStartup(object sender, StartupEventArgs e)
         {
+            
             Logger.StopWatchNormal("Startup cost", () =>
             {
                 _systemLanguage = CultureInfo.CurrentUICulture.Name;
@@ -85,7 +86,7 @@ namespace Wox
                 _stringMatcher = new StringMatcher();
                 StringMatcher.Instance = _stringMatcher;
                 _stringMatcher.UserSettingSearchPrecision = Settings.Instance.QuerySearchPrecision;
-                
+
                 StartNutstoreFuzzyProcess();
 
                 PluginManager.LoadPlugins(Settings.Instance.PluginSettings);
@@ -132,8 +133,31 @@ namespace Wox
 
         private void StartNutstoreFuzzyProcess()
         {
-            //start fzf-server.exe, wox.usnparser.exe
+            //Check if table structure has been update.
+            //Current lmdb version is 1.
+            if (Settings.Instance.LmdbVersion < 1)
+            {
+                var homePath = Environment.GetEnvironmentVariable("HomeDrive") + Environment.GetEnvironmentVariable("HomePath");
+                if (!Directory.Exists(homePath))
+                    homePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+                var dbPath = Path.Combine(homePath, ".cache", "nutstore-fzf");
+                if (Directory.Exists(dbPath))
+                {
+                    try
+                    {
+                        KillProcess(_fzfServer);
+                        Directory.Delete(dbPath, true);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Warn(ex, "Failed to delete old lmdb.");
+                    }
+                }
+                Settings.Instance.LmdbVersion = 1;
+                Settings.Save();
+            }
 
+            //start fzf-server.exe, wox.usnparser.exe
             EnsureProcessStarted(_fzfServer);
             EnsureProcessStarted(_usnPaerser, true);
         }
@@ -145,7 +169,7 @@ namespace Wox
                 KillProcess(_fzfServer);
                 KillProcess(_usnPaerser);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Logger.Warn(ex);
             }

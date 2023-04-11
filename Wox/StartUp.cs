@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.Threading;
+using System.Windows.Forms;
 using Wox.Helper;
 
 namespace Wox
@@ -15,6 +17,10 @@ namespace Wox
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
             Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
 
+            //if (!Debugger.IsAttached)
+            //{
+            //    MessageBox.Show($"You may want to attach the debugger\nPID={Process.GetCurrentProcess().Id}", "Wox DEBUG");
+            //}
 
             if (SingleInstance<App>.InitializeAsFirstInstance(Unique))
             {

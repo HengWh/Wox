@@ -298,6 +298,27 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
             }
         }
 
+        private void Purge()
+        {
+            try
+            {
+                foreach (var index in _settings.UsnStates.Select(p => FuzzyUtil.VolumeToDbIndex(p.Volume)))
+                {
+                    var purgeRequest = new PurgeRequest();
+                    purgeRequest.DbIdx = index;
+                    purgeRequest.DbType.Add(DbType.History);
+                    purgeRequest.DbType.Add(DbType.Ws);
+                    purgeRequest.DbType.Add(DbType.Fs);
+                    _api.Purge(purgeRequest);
+                }
+                _settings.UsnStates.Clear();
+            }
+            catch (Exception ex)
+            {
+                Logger.Warn(ex, "Purge failed.");
+            }
+        }
+
         public void Save()
         {
             foreach (var item in _settings?.UsnStates)
@@ -353,7 +374,7 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
             var icoPath = isFolder ? "Images\\folder.png" : "Images\\file.png";
             contextMenus.Add(new Result
             {
-                Title = _context.API.GetTranslation("wox_plugin_everything_copy_path"),
+                Title = _context.API.GetTranslation("wox_plugin_NutstoreFzf_copy_path"),
                 Action = (context) =>
                 {
                     Clipboard.SetText(selectedResult.SubTitle);
@@ -364,7 +385,7 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
 
             contextMenus.Add(new Result
             {
-                Title = _context.API.GetTranslation("wox_plugin_everything_copy"),
+                Title = _context.API.GetTranslation("wox_plugin_NutstoreFzf_copy"),
                 Action = (context) =>
                 {
                     Clipboard.SetFileDropList(new System.Collections.Specialized.StringCollection { selectedResult.SubTitle });

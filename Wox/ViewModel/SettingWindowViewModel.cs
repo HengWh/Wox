@@ -29,7 +29,7 @@ namespace Wox.ViewModel
         public SettingWindowViewModel(IPortable portable)
         {
 
-            _updater = new Updater(Wox.Properties.Settings.Default.GithubRepo); ;
+            //_updater = new Updater(Wox.Properties.Settings.Default.GithubRepo);
             _portable = portable;
             Settings = Settings.Instance;
             Settings.PropertyChanged += (s, e) =>
@@ -39,7 +39,7 @@ namespace Wox.ViewModel
                     OnPropertyChanged(nameof(ActivatedTimes));
                 }
             };
-            AutoUpdates();
+            //AutoUpdates();
         }
 
         public Settings Settings { get; set; }
@@ -52,7 +52,7 @@ namespace Wox.ViewModel
             }
             else
             {
-                await _updater.UpdateApp(false, Settings.UpdateToPrereleases);
+                //await _updater.UpdateApp(false, Settings.UpdateToPrereleases);
             }
         }
 
@@ -77,25 +77,25 @@ namespace Wox.ViewModel
             }
         }
 
-        private void AutoUpdates()
-        {
-            Task.Run(async () =>
-            {
-                if (Settings.Instance.AutoUpdates && !PortableMode)
-                {
-                    // check udpate every 5 hours
-                    var timer = new System.Timers.Timer(1000 * 60 * 60 * 5);
-                    timer.Elapsed += async (s, e) =>
-                    {
-                        await _updater.UpdateApp(true, Settings.Instance.UpdateToPrereleases);
-                    };
-                    timer.Start();
+        //private void AutoUpdates()
+        //{
+        //    Task.Run(async () =>
+        //    {
+        //        if (Settings.Instance.AutoUpdates && !PortableMode)
+        //        {
+        //            // check udpate every 5 hours
+        //            var timer = new System.Timers.Timer(1000 * 60 * 60 * 5);
+        //            timer.Elapsed += async (s, e) =>
+        //            {
+        //                await _updater.UpdateApp(true, Settings.Instance.UpdateToPrereleases);
+        //            };
+        //            timer.Start();
 
-                    // check updates on startup
-                    await _updater.UpdateApp(true, Settings.Instance.UpdateToPrereleases);
-                }
-            }).ContinueWith(ErrorReporting.UnhandledExceptionHandleTask, TaskContinuationOptions.OnlyOnFaulted);
-        }
+        //            // check updates on startup
+        //            await _updater.UpdateApp(true, Settings.Instance.UpdateToPrereleases);
+        //        }
+        //    }).ContinueWith(ErrorReporting.UnhandledExceptionHandleTask, TaskContinuationOptions.OnlyOnFaulted);
+        //}
 
 
 
@@ -338,12 +338,12 @@ namespace Wox.ViewModel
                         SubTitle = Plugin,
                         IcoPath = "Images/plugin.png"
                     },
-                    new Result
-                    {
-                        Title = $"Open Source: {_updater.GitHubRepository}",
-                        SubTitle = "Please star it!",
-                        IcoPath = "Images/ok.png"
-                    }
+                    //new Result
+                    //{
+                    //    Title = $"Open Source: {_updater.GitHubRepository}",
+                    //    SubTitle = "Please star it!",
+                    //    IcoPath = "Images/ok.png"
+                    //}
                 };
                 var vm = new ResultsViewModel(Settings);
                 vm.AddResults(results, "PREVIEW");

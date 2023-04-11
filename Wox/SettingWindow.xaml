@@ -453,7 +453,7 @@
                         <Run Text="{Binding ReleaseNotes, Mode=OneWay}" />
                     </Hyperlink>
                 </TextBlock>
-                <Button Grid.Row="4" Grid.Column="0"
+                <Button Grid.Row="4" Grid.Column="0" IsEnabled="False"
                         Content="{DynamicResource checkUpdates}" Click="OnCheckUpdates"
                         HorizontalAlignment="Left" Margin="10 10 10 10" />
             </Grid>

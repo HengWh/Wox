@@ -22,7 +22,7 @@ namespace Wox.Core.Configuration
         /// <returns></returns>
         private UpdateManager NewUpdateManager()
         {
-            return new UpdateManager(string.Empty, Constant.Wox, Constant.RootDirectory);
+            return new UpdateManager(string.Empty, Constant.Wox, Constant.ApplicationDirectory);
         }
 
         public void DisablePortableMode()
@@ -172,7 +172,7 @@ namespace Wox.Core.Configuration
                                     "would you like to move it to a different location?", string.Empty,
                                     MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                 {
-                    FilesFolders.OpenLocationInExporer(Constant.RootDirectory);
+                    FilesFolders.OpenLocationInExporer(Constant.ApplicationDirectory);
 
                     Environment.Exit(0);
                 }

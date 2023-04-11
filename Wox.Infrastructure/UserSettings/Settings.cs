@@ -122,6 +122,8 @@ namespace Wox.Infrastructure.UserSettings
 
         [JsonConverter(typeof(StringEnumConverter))]
         public LastQueryMode LastQueryMode { get; set; } = LastQueryMode.Selected;
+
+        public int LmdbVersion { get; set; }
     }
 
     public enum LastQueryMode
