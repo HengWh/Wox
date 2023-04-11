@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using Wox.Infrastructure.Logger;
 using Wox.Infrastructure.Storage;
+using Wox.Infrastructure.UserSettings;
 using Wox.Proto;
 using static Api.SearchResponse.Types;
 
@@ -58,6 +59,13 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
             _storage = new PluginJsonStorage<FzfSetting>();
             _settings = _storage.Load();
 
+            if (_settings.Version < Settings.Instance.LmdbVersion)
+            {
+                _settings.UsnStates.Clear();
+                _settings.Version = Settings.Instance.LmdbVersion;
+                _storage.Save();
+            }
+
             //GRPC client
             var apiChannel = new Channel("127.0.0.1:38999", ChannelCredentials.Insecure);
             _api = new ApiService.ApiServiceClient(apiChannel);
@@ -92,6 +100,7 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
                 }
 
             });
+
 
             //Push MFT and monitor USN
             foreach (var drive in DriveInfo.GetDrives())

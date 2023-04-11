@@ -153,8 +153,6 @@ namespace Wox
                         Logger.Warn(ex, "Failed to delete old lmdb.");
                     }
                 }
-                Settings.Instance.LmdbVersion = 1;
-                Settings.Save();
             }
 
             //start fzf-server.exe, wox.usnparser.exe
