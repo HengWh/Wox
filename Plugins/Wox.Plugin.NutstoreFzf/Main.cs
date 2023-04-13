@@ -105,7 +105,16 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
             //Push MFT and monitor USN
             foreach (var drive in DriveInfo.GetDrives())
             {
-                Task.Run(() => MonitorDiviceUsnJournal(drive));
+                Task.Run(() => MonitorDiviceUsnJournal(drive))
+                    .ContinueWith(_ =>
+                    {
+                        var dirPath = Environment.GetFolderPath(Environment.SpecialFolder.Recent);
+                        //drive.Name == Path.GetPathRoot(dirPath)
+                        if (Directory.Exists(dirPath))
+                        {
+                            FeedbackRecent(dirPath);
+                        }
+                    });
             }
         }
 
@@ -182,8 +191,8 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
                 _queryFinishedTime = DateTime.UtcNow;
                 _cts = null;
 
-                var endTime=DateTime.UtcNow;
-                Logger.Info($"Query end.. Terms is {query.Search}. Time span is {(endTime-startTime).TotalMilliseconds}ms");
+                var endTime = DateTime.UtcNow;
+                Logger.Info($"Query end.. Terms is {query.Search}. Time span is {(endTime - startTime).TotalMilliseconds}ms");
 
                 return results;
             }
@@ -219,7 +228,7 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
                     bool hide;
                     try
                     {
-                        Feedback(result, item.DbIdx, item.Key);
+                        Feedback(path, item.DbIdx, item.Key);
                         Process.Start(new ProcessStartInfo
                         {
                             FileName = path,
@@ -287,7 +296,17 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
             }
         }
 
-        private void Feedback(Result result, uint dbIndex, ulong key)
+        private void FeedbackRecent(string dirPath)
+        {
+            if (Directory.Exists(dirPath))
+            {
+                var key = FileHelper.GetFolderReferenceNumber(dirPath);
+                var dbIndex = FuzzyUtil.VolumeToDbIndex(Path.GetPathRoot(dirPath));
+                Feedback(dirPath, dbIndex, key);
+            }
+        }
+
+        private void Feedback(string path, uint dbIndex, ulong key)
         {
             try
             {
@@ -297,7 +316,7 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
                     DbIdx = dbIndex,
                     DbType = DbType.History,
                     Key = key,
-                    Val = FuzzyUtil.PackValue(result.SubTitle, Directory.Exists(result.SubTitle))
+                    Val = FuzzyUtil.PackValue(path, Directory.Exists(path))
                 });
                 _api.Update(request);
             }
@@ -344,7 +363,7 @@ namespace Wox.Plugin.NutstoreFuzzyFinder
         public List<Result> LoadContextMenus(Result selectedResult)
         {
             var dbIndex = FuzzyUtil.VolumeToDbIndex(Path.GetPathRoot(selectedResult.SubTitle));
-            Feedback(selectedResult, dbIndex, (ulong)selectedResult.ContextData);
+            Feedback(selectedResult.SubTitle, dbIndex, (ulong)selectedResult.ContextData);
             List<Result> contextMenus = new List<Result>();
             if (selectedResult == null) return contextMenus;
 
